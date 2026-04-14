@@ -1,4 +1,11 @@
 packages:
-  - "apps/*"
-  - "packages/*"
-  - "tests/*"
+  - apps/*
+  - packages/*
+  - tests/*
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - bigint-buffer
+  - prisma

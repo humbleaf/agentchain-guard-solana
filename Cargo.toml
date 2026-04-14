@@ -1,0 +1,6 @@
+[workspace]
+members = ["programs/agentchain-guard"]
+
+[profile.release]
+overflow-checks = true
+lto = "fat"

@@ -1,0 +1,92 @@
+# 🛡️ AgentChain Guard for Solana
+
+> **The policy and settlement control layer for autonomous commerce.**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
+[![Solana](https://img.shields.io/badge/Solana-Devnet-blueviolet)](https://explorer.solana.com/address/HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz?cluster=devnet)
+
+Solana makes low-cost, high-frequency machine payments practical. But autonomous agents should not be allowed to move value without guardrails. **AgentChain Guard** adds policy-bound execution, signed receipts, and gated settlement for agent actions on Solana.
+
+Built by [Humbleaf](https://humbleaf.com) for the [Colosseum Frontier Hackathon](https://www.colosseum.org/) · May 2026
+
+---
+
+## Architecture
+
+```mermaid
+graph TB
+    subgraph "Agent Runtime"
+        A[AI Agent / MCP Client]
+    end
+
+    subgraph "AgentGuard Service Layer"
+        PE[Policy Engine — 5 policies + receipt signing]
+        X4[x402 Verify Endpoint]
+    end
+
+    subgraph "Solana Devnet"
+        GP[agentchain_guard — Anchor Program]
+        VA[Vault ATA — PDA Token Account]
+        AI[ActionIntent PDAs]
+    end
+
+    subgraph "Dashboard"
+        FE[Next.js 15 — Wallet Adapter + Demo Page]
+    end
+
+    A -->|propose action| PE
+    PE -->|receipt_hash| GP
+    GP -->|escrow funds| VA
+    GP -->|emit events| FE
+    X4 -->|policy check| PE
+    FE -->|approve/deny/settle| GP
+```
+
+## Quick Start
+
+```bash
+# 1. Setup (installs Solana CLI, Anchor, generates keypairs)
+make setup
+
+# 2. Build + Deploy to Devnet
+make deploy
+
+# 3. Start all services
+make dev
+```
+
+## Project Structure
+
+```
+agentchain-guard-solana/
+├── programs/agentchain-guard/     # Anchor 0.31.1 program (Rust)
+│   └── src/
+│       ├── instructions/          # 9 instructions (init, create, settle, etc.)
+│       └── state/                 # 4 account structs
+├── packages/
+│   ├── sdk/                       # TypeScript SDK (PDA derivation, types)
+│   ├── policy-engine/             # Hono HTTP server (5 policies + x402)
+│   └── config/                    # Shared constants + env
+├── apps/
+│   ├── dashboard/                 # Next.js 15 dashboard
+│   └── demo-agent/                # CLI demo runner
+└── scripts/                       # Setup + deploy automation
+```
+
+## Demo Scenarios
+
+| Scenario | Amount | Expected Outcome |
+|---|---|---|
+| ▶ Allowed Payment | 3 USDC | Policy PASS → Escrow → Settle |
+| ⊗ Blocked Payment | 50 USDC | Allowlist DENY → No escrow |
+| ⏳ Approval Payment | 250 USDC | Pending Approval → Human sign-off → Settle |
+
+## Program ID
+
+```
+HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz
+```
+
+## License
+
+MIT — see [LICENSE](LICENSE)

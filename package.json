@@ -1,0 +1,26 @@
+{
+  "name": "agentchain-guard-solana",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AgentChain Guard for Solana — Policy and settlement control layer for autonomous commerce",
+  "homepage": "https://github.com/humbleaf/agentchain-guard-solana",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/humbleaf/agentchain-guard-solana.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@10.6.0",
+  "engines": {
+    "node": ">=22"
+  }
+}

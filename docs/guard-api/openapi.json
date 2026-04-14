@@ -1,0 +1,559 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "summary": "Service health check",
+        "description": "Returns health status of the Guard API, database, and Solana RPC connection.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "solana": {
+                      "type": "object",
+                      "properties": {
+                        "connected": {
+                          "type": "boolean"
+                        },
+                        "slot": {
+                          "type": "number"
+                        },
+                        "programId": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "database": {
+                      "type": "object",
+                      "properties": {
+                        "connected": {
+                          "type": "boolean"
+                        },
+                        "intentCount": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/intents/evaluate": {
+      "post": {
+        "operationId": "IntentController_evaluate",
+        "summary": "Evaluate an intent against policies",
+        "description": "Submits a proposed value-moving action for evaluation against the policy engine. Returns the verdict (PASS, DENY, or PENDING_APPROVAL), detailed per-policy results, and a cryptographic receipt hash. If PASS, the intent is auto-settled. If PENDING_APPROVAL, an approval request is queued for human review.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluateIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Intent evaluated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "verdict": {
+                      "type": "string",
+                      "enum": [
+                        "PASS",
+                        "DENY",
+                        "PENDING_APPROVAL"
+                      ]
+                    },
+                    "intentId": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "receiptHash": {
+                      "type": "string"
+                    },
+                    "amount": {
+                      "type": "string",
+                      "example": "3.00"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "policyResults": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "verdict": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body"
+          }
+        },
+        "tags": [
+          "intents"
+        ]
+      }
+    },
+    "/v1/intents": {
+      "get": {
+        "operationId": "IntentController_list",
+        "summary": "List intents",
+        "description": "Returns a paginated list of guarded intents with optional status and agent filters.",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "SETTLED",
+                "DENIED",
+                "PENDING_APPROVAL"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "agent",
+            "required": false,
+            "in": "query",
+            "description": "Filter by agent identifier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intent list returned"
+          }
+        },
+        "tags": [
+          "intents"
+        ]
+      }
+    },
+    "/v1/intents/{id}": {
+      "get": {
+        "operationId": "IntentController_findById",
+        "summary": "Get intent by ID",
+        "description": "Returns full intent detail including receipt and approval status.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Intent UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intent found"
+          },
+          "404": {
+            "description": "Intent not found"
+          }
+        },
+        "tags": [
+          "intents"
+        ]
+      }
+    },
+    "/v1/receipts/{hash}": {
+      "get": {
+        "operationId": "ReceiptController_getByHash",
+        "summary": "Get receipt by hash",
+        "description": "Fetch the full policy evaluation receipt by its SHA-256 hash. The on-chain program stores only the 32-byte hash — this endpoint provides the full JSON.",
+        "parameters": [
+          {
+            "name": "hash",
+            "required": true,
+            "in": "path",
+            "description": "SHA-256 receipt hash (64 hex characters)",
+            "schema": {
+              "example": "a1b2c3d4...",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Receipt found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "receiptHash": {
+                      "type": "string"
+                    },
+                    "intentId": {
+                      "type": "string"
+                    },
+                    "policies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "rawJson": {
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Receipt not found"
+          }
+        },
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/v1/approvals": {
+      "get": {
+        "operationId": "ApprovalController_list",
+        "summary": "List approval requests",
+        "description": "Returns all approval requests, optionally filtered by status.",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "PENDING",
+                "APPROVED",
+                "DENIED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Approval list returned"
+          }
+        },
+        "tags": [
+          "approvals"
+        ]
+      }
+    },
+    "/v1/approvals/{id}": {
+      "get": {
+        "operationId": "ApprovalController_findById",
+        "summary": "Get approval request detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Approval request UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Approval detail returned"
+          },
+          "404": {
+            "description": "Approval not found"
+          }
+        },
+        "tags": [
+          "approvals"
+        ]
+      }
+    },
+    "/v1/approvals/{id}/approve": {
+      "post": {
+        "operationId": "ApprovalController_approve",
+        "summary": "Approve a pending intent",
+        "description": "Approves the intent and triggers on-chain settlement. Transitions the intent from PENDING_APPROVAL → SETTLED.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Approval request UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intent approved and settled"
+          },
+          "404": {
+            "description": "Approval not found"
+          }
+        },
+        "tags": [
+          "approvals"
+        ]
+      }
+    },
+    "/v1/approvals/{id}/deny": {
+      "post": {
+        "operationId": "ApprovalController_deny",
+        "summary": "Deny a pending intent",
+        "description": "Denies the intent. Transitions the intent from PENDING_APPROVAL → DENIED.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Approval request UUID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Intent denied"
+          },
+          "404": {
+            "description": "Approval not found"
+          }
+        },
+        "tags": [
+          "approvals"
+        ]
+      }
+    },
+    "/v1/config": {
+      "get": {
+        "operationId": "GuardConfigController_getConfig",
+        "summary": "Get Guard configuration",
+        "description": "Returns the current Guard program configuration including policy thresholds, network info, and aggregate intent statistics.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Guard configuration returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "programId": {
+                      "type": "string"
+                    },
+                    "network": {
+                      "type": "string",
+                      "enum": [
+                        "devnet",
+                        "mainnet"
+                      ]
+                    },
+                    "policies": {
+                      "type": "object"
+                    },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "totalActions": {
+                          "type": "number"
+                        },
+                        "totalSettled": {
+                          "type": "number"
+                        },
+                        "totalDenied": {
+                          "type": "number"
+                        },
+                        "totalPending": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "signerConfigured": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "config"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "AgentChain Guard API",
+    "description": "Policy engine and settlement gateway for autonomous commerce on Solana. Evaluates intents against configurable policies, generates cryptographic receipts, and orchestrates on-chain settlement via the AgentChain Guard program.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "Service health and readiness"
+    },
+    {
+      "name": "intents",
+      "description": "Intent lifecycle — evaluate, list, inspect"
+    },
+    {
+      "name": "receipts",
+      "description": "Cryptographic receipt inspection"
+    },
+    {
+      "name": "approvals",
+      "description": "Human approval queue for high-value intents"
+    },
+    {
+      "name": "config",
+      "description": "Guard program configuration"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:4337",
+      "description": "Local Development"
+    },
+    {
+      "url": "https://guard-api.agentchain.xyz",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "x-api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Optional API key for rate limiting"
+      }
+    },
+    "schemas": {
+      "EvaluateIntentDto": {
+        "type": "object",
+        "properties": {
+          "intentId": {
+            "type": "string",
+            "description": "Unique intent identifier",
+            "example": "intent-001-abc"
+          },
+          "agent": {
+            "type": "string",
+            "description": "Agent wallet address or identifier",
+            "example": "DemoAgent"
+          },
+          "requester": {
+            "type": "string",
+            "description": "Wallet funding this action",
+            "example": "DemoRequester"
+          },
+          "recipient": {
+            "type": "string",
+            "description": "Destination wallet for settlement",
+            "example": "DemoRecipient"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Amount in token base units (6 decimals for USDC)",
+            "example": "3000000"
+          },
+          "actionType": {
+            "type": "number",
+            "description": "Action classification: 0=api_payment, 1=reward, 2=treasury",
+            "example": 0
+          },
+          "mint": {
+            "type": "string",
+            "description": "SPL token mint address",
+            "example": "USDC"
+          }
+        },
+        "required": [
+          "intentId",
+          "agent",
+          "requester",
+          "recipient",
+          "amount",
+          "actionType"
+        ]
+      }
+    }
+  }
+}

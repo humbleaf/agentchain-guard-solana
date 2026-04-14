@@ -1,58 +1,52 @@
 /**
- * export-openapi.ts — Standalone OpenAPI spec exporter.
+ * export-openapi.ts — OpenAPI spec exporter.
  *
- * Boots NestJS in-process (no HTTP), extracts the Swagger document,
+ * Fetches the spec from the running Guard API server at /api-json
  * and writes it to docs/guard-api/openapi.json for Mintlify consumption.
+ *
+ * Requires the Guard API to be running: make dev-api
  *
  * Usage: npx tsx scripts/export-openapi.ts
  */
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
 
-async function exportSpec() {
-    // Dynamic import to avoid loading before reflect-metadata
-    const { GuardApiModule } = await import('../src/guard-api.module');
+const GUARD_API_URL = process.env.GUARD_API_URL ?? 'http://localhost:4337';
+const OUTPUT_PATH = path.resolve(__dirname, '../../../docs/guard-api/openapi.json');
 
-    const app = await NestFactory.create(GuardApiModule, { logger: false });
+async function main() {
+    console.log(`Fetching OpenAPI spec from ${GUARD_API_URL}/api-json ...`);
 
-    const config = new DocumentBuilder()
-        .setTitle('AgentChain Guard API')
-        .setDescription(
-            'Policy engine and settlement gateway for autonomous commerce on Solana. ' +
-            'Evaluates intents against configurable policies, generates cryptographic receipts, ' +
-            'and orchestrates on-chain settlement via the AgentChain Guard program.',
-        )
-        .setVersion('1.0.0')
-        .addServer('https://guard-api.agentchain.xyz', 'Production')
-        .addServer('http://localhost:4337', 'Local Development')
-        .addApiKey(
-            { type: 'apiKey', in: 'header', name: 'x-api-key', description: 'Optional API key' },
-            'x-api-key',
-        )
-        .addTag('health', 'Service health and readiness')
-        .addTag('intents', 'Intent lifecycle — evaluate, list, inspect')
-        .addTag('receipts', 'Cryptographic receipt inspection')
-        .addTag('approvals', 'Human approval queue for high-value intents')
-        .addTag('config', 'Guard program configuration')
-        .build();
+    const res = await fetch(`${GUARD_API_URL}/api-json`);
+    if (!res.ok) {
+        console.error(`FATAL: Failed to fetch spec — ${res.status} ${res.statusText}`);
+        console.error('Is the Guard API running? → make dev-api');
+        process.exit(1);
+    }
 
-    const document = SwaggerModule.createDocument(app, config);
+    const spec = await res.json();
 
-    const outputPath = path.resolve(__dirname, '../../docs/guard-api/openapi.json');
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+    // Validate basic structure
+    if (!spec.openapi || !spec.paths) {
+        console.error('FATAL: Response is not a valid OpenAPI document');
+        process.exit(1);
+    }
 
-    console.log(`✅ OpenAPI spec exported to ${outputPath}`);
-    console.log(`   Paths: ${Object.keys(document.paths || {}).length}`);
-    console.log(`   Tags: ${(document.tags || []).map((t: any) => t.name).join(', ')}`);
+    // Ensure output directory exists
+    fs.mkdirSync(path.dirname(OUTPUT_PATH), { recursive: true });
+    fs.writeFileSync(OUTPUT_PATH, JSON.stringify(spec, null, 2));
 
-    await app.close();
+    const pathCount = Object.keys(spec.paths).length;
+    const tagNames = (spec.tags || []).map((t: any) => t.name).join(', ');
+
+    console.log(`✅ OpenAPI spec exported to ${OUTPUT_PATH}`);
+    console.log(`   Version: ${spec.openapi}`);
+    console.log(`   Paths: ${pathCount}`);
+    console.log(`   Tags: ${tagNames}`);
 }
 
-exportSpec().catch((err) => {
-    console.error('Failed to export OpenAPI spec:', err);
+main().catch((err) => {
+    console.error('Failed to export OpenAPI spec:', err.message);
+    console.error('Is the Guard API running? → make dev-api');
     process.exit(1);
 });

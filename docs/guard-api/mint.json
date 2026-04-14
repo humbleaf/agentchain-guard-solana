@@ -1,6 +1,9 @@
 {
   "name": "AgentChain Guard",
   "theme": "quill",
+  "appearance": {
+    "default": "dark"
+  },
   "font": {
     "headings": { "family": "Inter", "weight": 600 },
     "body": { "family": "Inter" }
@@ -8,18 +11,14 @@
   "colors": {
     "primary": "#10B981",
     "light": "#34D399",
-    "dark": "#059669"
+    "dark": "#059669",
+    "background": {
+      "dark": "#0a0a0b"
+    }
   },
   "favicon": "/favicon.svg",
-  "logo": {
-    "light": "/logo/light.png",
-    "dark": "/logo/dark.png"
-  },
   "api": {
-    "baseUrl": "https://guard-api.agentchain.xyz",
-    "playground": {
-      "proxy": true
-    }
+    "baseUrl": "http://localhost:4337"
   },
   "openapi": "openapi.json",
   "tabs": [
@@ -88,11 +87,6 @@
       "name": "GitHub",
       "url": "https://github.com/humbleaf/agentchain-guard-solana",
       "icon": "github"
-    },
-    {
-      "name": "Main Docs",
-      "url": "https://docs.agentchain.xyz",
-      "icon": "book"
     }
   ],
   "topbarLinks": [

@@ -1,0 +1,6 @@
+dist/
+node_modules/
+prisma/guard.db
+prisma/guard.db-journal
+.env
+.env.local

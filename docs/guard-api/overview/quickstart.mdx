@@ -1,0 +1,95 @@
+---
+title: 'Quickstart'
+description: 'Get the Guard API running and evaluate your first intent in 5 minutes'
+---
+
+# Quickstart
+
+AgentChain Guard is a policy engine and settlement gateway for autonomous commerce on Solana. It evaluates value-moving intents against configurable policies, generates cryptographic receipts, and orchestrates on-chain settlement.
+
+## Prerequisites
+
+- Node.js ≥ 22
+- pnpm ≥ 10
+- Solana CLI (optional, for on-chain interaction)
+
+## Installation
+
+```bash
+cd apps/guard-api
+pnpm install
+npx prisma generate
+npx prisma db push
+```
+
+## Start the API
+
+```bash
+pnpm run dev
+```
+
+The Guard API starts on **port 4337**:
+- Swagger UI: [http://localhost:4337/api](http://localhost:4337/api)
+- OpenAPI JSON: [http://localhost:4337/api-json](http://localhost:4337/api-json)
+
+## Evaluate Your First Intent
+
+```bash
+curl -X POST http://localhost:4337/v1/intents/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "intentId": "test-001",
+    "agent": "DemoAgent",
+    "requester": "DemoRequester",
+    "recipient": "AllowlistedAPI",
+    "amount": "3000000",
+    "actionType": 0
+  }'
+```
+
+### Expected Response
+
+```json
+{
+  "verdict": "PASS",
+  "intentId": "test-001",
+  "receiptHash": "a1b2c3d4...",
+  "amount": "3.00",
+  "status": "SETTLED",
+  "policyResults": [
+    { "name": "max-spend", "verdict": "PASS", "reason": "Within threshold (3.00 ≤ 100.00 USDC)" },
+    { "name": "allowlist", "verdict": "PASS", "reason": "Recipient approved" },
+    { "name": "budget-bucket", "verdict": "PASS", "reason": "Daily cap available" },
+    { "name": "duplicate-prevention", "verdict": "PASS", "reason": "Unique intent ID" },
+    { "name": "approval-threshold", "verdict": "PASS", "reason": "Below threshold (3.00 ≤ 100.00 USDC)" }
+  ]
+}
+```
+
+## Try a Blocked Payment
+
+```bash
+curl -X POST http://localhost:4337/v1/intents/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "intentId": "test-002",
+    "agent": "DemoAgent",
+    "requester": "DemoRequester",
+    "recipient": "UnknownRecipient",
+    "amount": "150000000",
+    "actionType": 0
+  }'
+```
+
+This returns `"verdict": "DENY"` because the amount exceeds the 100 USDC max-spend policy.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/overview/architecture">
+    Understand the intent-to-settlement lifecycle
+  </Card>
+  <Card title="Policies" icon="shield" href="/overview/policies">
+    Configure and extend the policy engine
+  </Card>
+</CardGroup>

@@ -1,0 +1,53 @@
+// ── Prisma Schema: AgentChain Guard ────────────────────────────
+// SQLite for hackathon portability. Zero-infra.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./guard.db"
+}
+
+model Intent {
+  id            String    @id @default(uuid())
+  intentId      String    @unique   // hex-encoded [u8; 32]
+  agent         String
+  requester     String
+  recipient     String
+  amount        BigInt
+  actionType    Int
+  status        String    // PROPOSED | PENDING_APPROVAL | DENIED | SETTLED | REFUNDED
+  policyVerdict String
+  receiptHash   String
+  txSignature   String?
+  createdAt     DateTime  @default(now())
+  settledAt     DateTime?
+  expiresAt     DateTime
+
+  receipt       Receipt?
+  approval      ApprovalRequest?
+}
+
+model Receipt {
+  id          String   @id @default(uuid())
+  receiptHash String   @unique
+  intentId    String   @unique
+  policies    String   // JSON array of PolicyResult
+  rawJson     String   // Full receipt JSON for export
+  createdAt   DateTime @default(now())
+
+  intent      Intent   @relation(fields: [intentId], references: [id])
+}
+
+model ApprovalRequest {
+  id         String    @id @default(uuid())
+  intentId   String    @unique
+  status     String    @default("PENDING") // PENDING | APPROVED | DENIED
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  intent     Intent    @relation(fields: [intentId], references: [id])
+}

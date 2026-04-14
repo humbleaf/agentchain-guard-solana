@@ -1,0 +1,118 @@
+{
+  "name": "AgentChain Guard",
+  "theme": "quill",
+  "font": {
+    "headings": { "family": "Inter", "weight": 600 },
+    "body": { "family": "Inter" }
+  },
+  "colors": {
+    "primary": "#10B981",
+    "light": "#34D399",
+    "dark": "#059669"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "api": {
+    "baseUrl": "https://guard-api.agentchain.xyz",
+    "playground": {
+      "proxy": true
+    }
+  },
+  "openapi": "openapi.json",
+  "tabs": [
+    {
+      "name": "Overview",
+      "url": "overview"
+    },
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "overview/quickstart",
+        "overview/architecture"
+      ]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "overview/policies",
+        "overview/settlement-flow"
+      ]
+    },
+    {
+      "group": "Intents",
+      "pages": [
+        "api-reference/intents/evaluate-an-intent-against-policies",
+        "api-reference/intents/list-intents",
+        "api-reference/intents/get-intent-by-id"
+      ]
+    },
+    {
+      "group": "Receipts",
+      "pages": [
+        "api-reference/receipts/get-receipt-by-hash"
+      ]
+    },
+    {
+      "group": "Approvals",
+      "pages": [
+        "api-reference/approvals/list-approval-requests",
+        "api-reference/approvals/get-approval-request-detail",
+        "api-reference/approvals/approve-a-pending-intent",
+        "api-reference/approvals/deny-a-pending-intent"
+      ]
+    },
+    {
+      "group": "Configuration",
+      "pages": [
+        "api-reference/config/get-guard-configuration"
+      ]
+    },
+    {
+      "group": "Health",
+      "pages": [
+        "api-reference/health/service-health-check"
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/humbleaf/agentchain-guard-solana",
+      "icon": "github"
+    },
+    {
+      "name": "Main Docs",
+      "url": "https://docs.agentchain.xyz",
+      "icon": "book"
+    }
+  ],
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:hello@humbleaf.com"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://guard.agentchain.xyz"
+  },
+  "footerSocials": {
+    "x": "https://x.com/humbleaf",
+    "github": "https://github.com/humbleaf"
+  },
+  "feedback": {
+    "suggestEdit": true
+  },
+  "seo": {
+    "indexHiddenPages": false
+  }
+}

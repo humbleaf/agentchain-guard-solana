@@ -1,0 +1,85 @@
+---
+title: 'Settlement Flow'
+description: 'The complete intent-to-settlement lifecycle'
+---
+
+# Settlement Flow
+
+AgentChain Guard implements a **policy-bound settlement** model where every value transfer follows a deterministic lifecycle from intent creation to on-chain settlement.
+
+## The 5-Stage Pipeline
+
+```mermaid
+flowchart LR
+    A[Intent] --> B[Policy]
+    B --> C[Receipt]
+    C --> D[Escrow]
+    D --> E[Settlement]
+    
+    style A fill:#0a0a0b,stroke:#10B981,color:#fff
+    style B fill:#0a0a0b,stroke:#10B981,color:#fff
+    style C fill:#0a0a0b,stroke:#10B981,color:#fff
+    style D fill:#0a0a0b,stroke:#10B981,color:#fff
+    style E fill:#0a0a0b,stroke:#10B981,color:#fff
+```
+
+### Stage 1: Intent
+
+The agent proposes a value-moving action by calling `POST /v1/intents/evaluate` with:
+- **Agent identity** — who is proposing the action
+- **Recipient** — where funds should go
+- **Amount** — how much to transfer (USDC, 6 decimals)
+- **Action type** — classification (API payment, reward, treasury)
+
+### Stage 2: Policy Evaluation
+
+The policy engine evaluates the intent against 5 policies. The verdict determines the next step:
+
+| Verdict | Next Stage | On-Chain Action |
+|---|---|---|
+| `PASS` | Receipt → Escrow → Settlement | Auto-settle |
+| `DENY` | ❌ Stopped | No TX submitted |
+| `PENDING_APPROVAL` | Approval Queue | Intent created in pending state |
+
+### Stage 3: Receipt
+
+A cryptographic receipt is generated from the policy evaluation results:
+1. Policy results are serialized to JSON
+2. SHA-256 hash computed over the JSON
+3. Full receipt stored in SQLite for audit
+4. Hash stored on-chain in the `ActionIntent` PDA
+
+### Stage 4: Escrow
+
+For `PASS` and `PENDING_APPROVAL` verdicts, the on-chain program:
+1. Creates an `ActionIntent` PDA
+2. Transfers tokens from the agent's budget account to the vault
+3. Records the receipt hash on-chain
+
+### Stage 5: Settlement
+
+When conditions are met (auto-settle or human approval):
+1. Guard program verifies the intent status
+2. Tokens transferred from vault to recipient
+3. `settledAt` timestamp recorded
+4. Budget account updated with daily spend
+
+## Scenario Examples
+
+### Allowed Payment (3 USDC)
+```
+Intent → Policy (5/5 PASS) → Receipt → Escrow → Settlement ✅
+Total time: ~2 seconds
+```
+
+### Blocked Payment (150 USDC)
+```
+Intent → Policy (max-spend DENY) → Receipt → STOPPED ❌
+Total time: <100ms
+```
+
+### Approval Required (250 USDC)
+```
+Intent → Policy (approval-threshold PENDING) → Receipt → Escrow → ⏳ Queue
+→ Human Approves → Settlement ✅
+```

@@ -1,0 +1,90 @@
+---
+title: 'Policies'
+description: 'How the Guard policy engine evaluates and gates agent actions'
+---
+
+# Policy Engine
+
+The Guard API evaluates every intent against **five configurable policies** before allowing settlement. This implements a defense-in-depth model where any single policy can block a transaction.
+
+## Evaluation Model
+
+Policies are evaluated in sequence. The final verdict uses **worst-case aggregation**:
+
+```
+DENY > PENDING_APPROVAL > PASS
+```
+
+If any policy returns `DENY`, the overall verdict is `DENY` regardless of other results.
+
+## Built-in Policies
+
+### 1. Max Spend (`max-spend`)
+
+Limits the maximum amount for a single action.
+
+| Parameter | Default | Env Variable |
+|---|---|---|
+| Limit | 100 USDC | `MAX_SPEND_LIMIT` |
+
+**PASS**: Amount ≤ limit  
+**DENY**: Amount > limit
+
+### 2. Allowlist (`allowlist`)
+
+Validates that the recipient is on an approved list.
+
+Currently **open in demo mode** — all recipients are approved. In production, this would check against a database of allowlisted addresses.
+
+### 3. Budget Bucket (`budget-bucket`)
+
+Enforces a daily spending cap per agent.
+
+| Parameter | Default | Env Variable |
+|---|---|---|
+| Daily Cap | 500 USDC | `DAILY_BUDGET_CAP` |
+
+### 4. Duplicate Prevention (`duplicate-prevention`)
+
+Prevents the same `intentId` from being evaluated twice. This is an idempotency guard that protects against replay attacks and duplicate submissions.
+
+### 5. Approval Threshold (`approval-threshold`)
+
+Requires human sign-off for high-value actions.
+
+| Parameter | Default | Env Variable |
+|---|---|---|
+| Threshold | 100 USDC | `APPROVAL_THRESHOLD` |
+
+**PASS**: Amount ≤ threshold  
+**PENDING_APPROVAL**: Amount > threshold → routed to approval queue
+
+## Policy Result Format
+
+Each policy returns a structured result:
+
+```json
+{
+  "name": "max-spend",
+  "verdict": "PASS",
+  "reason": "Within threshold (3.00 ≤ 100.00 USDC)"
+}
+```
+
+## Receipts
+
+The complete array of policy results is hashed via SHA-256 to produce a **receipt hash**. This hash is:
+
+- Stored on-chain in the `ActionIntent` PDA (32 bytes)
+- Queryable via `GET /v1/receipts/:hash` for the full JSON
+- Immutable proof of the policy evaluation at intent creation time
+
+## Configuration
+
+All policy thresholds are configured via environment variables. See `.env.example` for the full list.
+
+```bash
+MAX_SPEND_LIMIT=100000000       # 100 USDC (6 decimals)
+APPROVAL_THRESHOLD=100000000    # 100 USDC
+DAILY_BUDGET_CAP=500000000      # 500 USDC
+```

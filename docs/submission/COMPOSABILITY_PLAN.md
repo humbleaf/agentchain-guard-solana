@@ -13,8 +13,12 @@ AgentChain Guard is designed as a "Security Primitive" that composes with existi
 - **TipLink / Binks**: Integration for simplified "Claim-able" agent payments gated by policy.
 - **Oracle (Pyth/Switchboard)**: Using oracles to adjust budget caps based on real-time asset volatility.
 
-## 🛠️ Minimal Example (Planned for Day 4)
-`examples/guarded-transfer.ts`: A 50-line script showing how to wrap a standard SPL transfer in an `ActionIntent` to gain policy protection.
+## 🛡️ Ecosystem Composability: The "Guard-Before-Payment" Pattern
+We have implemented `examples/x402-guarded-hono` to demonstrate how AgentChain Guard composes with emerging agent-payment standards like x402.
+
+**Thesis**: x402 lets agents pay; AgentChain Guard decides whether they should.
+
+- **Example**: `examples/x402-guarded-hono/`: A Hono-based gateway that intercepts x402-style payment intents and validates them against the Policy Engine before authorizing settlement.
 
 ## 📦 Developer Friendliness
 - **Typed SDK**: Full TypeScript support with Zod schemas for receipts.

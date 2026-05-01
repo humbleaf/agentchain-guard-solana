@@ -20,6 +20,12 @@ setup:
 deploy:
 	@bash scripts/deploy.sh
 
+# Deploy to Google Cloud Run (API + Dashboard)
+deploy-cloud:
+	@chmod +x scripts/deploy-cloud-run.sh
+	@bash scripts/deploy-cloud-run.sh
+
+
 # ── Development ──────────────────────────────────────────────────
 # Start all services: dashboard (3009), guard-api (4337), demo agent.
 dev:

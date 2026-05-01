@@ -28,7 +28,11 @@ async function bootstrap() {
             if (!origin) { callback(null, true); return; }
             if (/^https?:\/\/localhost:\d+$/.test(origin)) { callback(null, true); return; }
             if (/^https?:\/\/[a-z0-9-]+\.agentchain\.xyz$/.test(origin)) { callback(null, true); return; }
+            if (/^https?:\/\/[a-z0-9-]+\.a\.run\.app$/.test(origin)) { callback(null, true); return; }
+            if (/^https?:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) { callback(null, true); return; }
             callback(new Error(`Origin ${origin} not allowed by CORS`));
+
+
         },
         credentials: true,
         allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
@@ -55,7 +59,8 @@ async function bootstrap() {
         )
         .setVersion('1.0.0')
         .addServer('http://localhost:4337', 'Local Development')
-        .addServer('https://guard-api.agentchain.xyz', 'Production')
+        .addServer('https://agentguard-api-[hash].a.run.app', 'Cloud Run Production')
+
         .addApiKey(
             { type: 'apiKey', in: 'header', name: 'x-api-key', description: 'Optional API key for rate limiting' },
             'x-api-key',
@@ -77,7 +82,9 @@ async function bootstrap() {
     logger.log(`═══════════════════════════════════════════`);
     logger.log(`  AgentChain Guard API`);
     logger.log(`  Port: ${port}`);
+    logger.log(`  Mode: ${process.env.GUARD_MODE || 'SIMULATED'}`);
     logger.log(`  Swagger UI: http://localhost:${port}/api`);
+
     logger.log(`  OpenAPI JSON: http://localhost:${port}/api-json`);
     logger.log(`═══════════════════════════════════════════`);
 }

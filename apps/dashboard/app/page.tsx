@@ -202,7 +202,8 @@ export default function DashboardPage() {
   const getGuardConfigPda = () => PublicKey.findProgramAddressSync([Buffer.from(GUARD_CONFIG_SEED)], PROGRAM_ID)[0]
   const getVaultPda = (mint: PublicKey) => PublicKey.findProgramAddressSync([Buffer.from(VAULT_SEED), mint.toBuffer()], PROGRAM_ID)[0]
   const getIntentPda = (id: Uint8Array) => PublicKey.findProgramAddressSync([Buffer.from(INTENT_SEED), Buffer.from(id)], PROGRAM_ID)[0]
-  const getBudgetPda = (agent: PublicKey) => PublicKey.findProgramAddressSync([Buffer.from(BUDGET_SEED), agent.toBuffer(), Buffer.from([1]).concat(Buffer.alloc(31))], PROGRAM_ID)[0]
+  const getBudgetPda = (agent: PublicKey) => PublicKey.findProgramAddressSync([Buffer.from(BUDGET_SEED), agent.toBuffer(), Buffer.concat([Buffer.from([1]), Buffer.alloc(31)])], PROGRAM_ID)[0]
+
 
 
   /* ═══ Add event to live rail ═══ */

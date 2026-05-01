@@ -1,0 +1,21 @@
+# AgentChain Guard — Cloud Run Environment Configuration
+# Copy this to .env.cloud and adjust before deployment if not using defaults.
+
+# GCP Configuration
+GCP_PROJECT_ID=your-project-id
+GCP_REGION=us-central1
+
+# Service Names
+API_SERVICE_NAME=agentguard-api
+DASHBOARD_SERVICE_NAME=agentguard-dashboard
+
+# Runtime Configuration
+SOLANA_RPC_URL=https://api.devnet.solana.com
+SOLANA_CLUSTER=devnet
+GUARD_MODE=SIMULATED # or DEVNET
+PROGRAM_ID=HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz
+
+# Dashboard (Injection)
+# These are handled automatically by deploy-cloud-run.sh
+# NEXT_PUBLIC_POLICY_ENGINE_URL=https://agentguard-api-xxxxx.a.run.app
+

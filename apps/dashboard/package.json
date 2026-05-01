@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3009",
     "build": "next build",
-    "start": "next start -p 3009"
+    "start": "next start -p ${PORT:-3009}"
   },
   "dependencies": {
     "@solana/wallet-adapter-base": "^0.9.24",
@@ -13,7 +13,9 @@
     "@solana/wallet-adapter-react-ui": "^0.9.36",
     "@solana/wallet-adapter-wallets": "^0.19.34",
     "@solana/web3.js": "^1.98.0",
+    "@coral-xyz/anchor": "^0.30.1",
     "lucide-react": "^1.8.0",
+
     "next": "^15.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

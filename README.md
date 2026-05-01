@@ -21,7 +21,9 @@ Built by [Humbleaf](https://humbleaf.xyz) for the [Colosseum Frontier Hackathon]
 - **Judge Claim Matrix**: [docs/submission/CLAIM_MATRIX.md](./docs/submission/CLAIM_MATRIX.md)
 - **Security Model**: [docs/submission/SECURITY_MODEL.md](./docs/submission/SECURITY_MODEL.md)
 - **MCP Server Docs**: [docs/submission/MCP_SERVER.md](./docs/submission/MCP_SERVER.md)
+- **Cloud Run Deployment**: [docs/submission/CLOUD_RUN_DEPLOYMENT.md](./docs/submission/CLOUD_RUN_DEPLOYMENT.md)
 - **Business Plan**: [docs/submission/BUSINESS_PLAN.md](./docs/submission/BUSINESS_PLAN.md)
+
 
 - **Composability Plan**: [docs/submission/COMPOSABILITY_PLAN.md](./docs/submission/COMPOSABILITY_PLAN.md)
 - **Integration Story**: [docs/submission/INTEGRATION_STORY.md](./docs/submission/INTEGRATION_STORY.md)

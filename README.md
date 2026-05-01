@@ -7,9 +7,22 @@
 
 Solana makes low-cost, high-frequency machine payments practical. But autonomous agents should not be allowed to move value without guardrails. **AgentChain Guard** adds policy-bound execution, signed receipts, and gated settlement for agent actions on Solana.
 
+> [!NOTE]
+> This is a **Security-Hardened Prototype** for the Colosseum Frontier Hackathon. It demonstrates the Authority Boundary pattern for agentic commerce.
+
 Built by [Humbleaf](https://humbleaf.xyz) for the [Colosseum Frontier Hackathon](https://www.colosseum.org/) · May 2026
 
+
 ---
+
+## 🏆 Colosseum Hackathon Submission
+- **Pitch & Problem**: [docs/submission/README.md](./docs/submission/README.md)
+- **Judge Notes**: [docs/submission/JUDGE_NOTES.md](./docs/submission/JUDGE_NOTES.md)
+- **Security Model**: [docs/submission/SECURITY_MODEL.md](./docs/submission/SECURITY_MODEL.md)
+- **Demo Script**: [docs/submission/DEMO_SCRIPT.md](./docs/submission/DEMO_SCRIPT.md)
+
+---
+
 
 ## Architecture
 

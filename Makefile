@@ -56,7 +56,17 @@ test-api:
 	cd apps/guard-api && pnpm test
 
 # All tests
-test-all: test test-api
+test-all: test test-sdk
+
+# SDK tests
+test-sdk:
+	cd packages/sdk && pnpm test
+
+# Policy engine tests
+test-policy:
+	cd packages/policy-engine && pnpm test
+
+
 
 # ── Build ────────────────────────────────────────────────────────
 build:

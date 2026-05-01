@@ -64,6 +64,7 @@ interface TraceStep {
    ═══════════════════════════════════════════════════════════════════ */
 
 const POLICY_ENGINE_URL = process.env.NEXT_PUBLIC_POLICY_ENGINE_URL || 'http://localhost:3010'
+const ENABLE_DEVNET_TX = process.env.NEXT_PUBLIC_ENABLE_DEVNET_TX === 'true'
 
 const SCENARIOS = [
   {
@@ -194,6 +195,7 @@ export default function DashboardPage() {
   /* ═══ Program Setup ═══ */
   const program = useMemo(() => {
     if (!publicKey) return null
+    // LAW-26: any cast here only to bypass minor type mismatch between @solana/wallet-adapter and AnchorProvider
     const provider = new AnchorProvider(connection, wallet as any, { commitment: 'confirmed' })
     return new Program(idl as any, provider)
   }, [connection, publicKey, wallet])
@@ -228,6 +230,11 @@ export default function DashboardPage() {
 
     const scenario = SCENARIOS[idx]
     const intentId = `intent-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    
+    // Phase 2: Wallet Identity
+    const agentId = publicKey ? publicKey.toBase58() : 'DemoAgent'
+    const requesterId = publicKey ? publicKey.toBase58() : 'DemoRequester'
+    const modePrefix = publicKey ? '[WALLET-CONNECTED]' : '[SIMULATED]'
 
     setBoundaryState({
       active: true,
@@ -249,7 +256,20 @@ export default function DashboardPage() {
 
     /* Step 1: Agent proposes */
     setCtaPhase('Evaluating…')
-    logEvent(`Agent proposed ${scenario.name} — ${formatUsdc(scenario.amount)} USDC`)
+    logEvent(`${modePrefix} Agent proposed ${scenario.name} — ${formatUsdc(scenario.amount)} USDC`)
+    
+    // Phase 3: Message Signing Proof (Optional/Identity only)
+    if (publicKey && wallet.signMessage) {
+        logEvent(`[PROOF] Requesting wallet signature for intent ${shortId(intentId)}...`)
+        try {
+            const msg = new TextEncoder().encode(`Authorize AgentChain Guard demo intent: ${intentId}`)
+            await wallet.signMessage(msg)
+            logEvent(`✅ [PROOF] Intent cryptographically signed by ${shortId(agentId)}`)
+        } catch (e) {
+            logEvent(`⚠️ [PROOF] Signature skipped or rejected. Proceeding with identity proof only.`)
+        }
+    }
+
     await sleep(600)
     const e1 = Date.now() - traceStartRef.current
     setTraceSteps(prev => updateTrace(prev, 0, 'done', scenario.name, e1))
@@ -294,8 +314,7 @@ export default function DashboardPage() {
     await sleep(800)
     const verdictOk = verdict === 'PASS' || verdict === 'PENDING_APPROVAL'
     const e2 = Date.now() - traceStartRef.current
-    const modeLabel = publicKey ? '[ON-CHAIN]' : '[SIMULATED]'
-    logEvent(`${modeLabel} Policy engine evaluated ${policies.length} rules → ${verdict}`)
+    logEvent(`[POLICY-ENGINE] Evaluated ${policies.length} rules → ${verdict}`)
     setTraceSteps(prev => updateTrace(prev, 1, verdictOk ? 'done' : 'fail', `${verdict} · ${policies.length} policies`, e2))
 
     setTraceSteps(prev => updateTrace(prev, 2, 'running'))
@@ -310,7 +329,7 @@ export default function DashboardPage() {
     setCtaPhase('Hashing receipt…')
     await sleep(400)
     const e3 = Date.now() - traceStartRef.current
-    logEvent(`Receipt hash generated — ${shortId(receiptHash)}`)
+    logEvent(`[DET-RECEIPT] Deterministic hash generated — ${shortId(receiptHash)}`)
     setTraceSteps(prev => updateTrace(prev, 2, 'done', shortId(receiptHash), e3))
     setTraceSteps(prev => updateTrace(prev, 3, 'running'))
     setBoundaryState(prev => ({
@@ -327,44 +346,45 @@ export default function DashboardPage() {
     if (onchainOk && program && publicKey) {
       try {
         const intentIdBytes = new TextEncoder().encode(intentId.padEnd(32, '\0')).slice(0, 32)
-        const receiptHashBytes = new Uint8Array(await getReceiptHash({
-          intentId, agent: 'DemoAgent', amount: scenario.amount, recipient: scenario.recipient
-        }))
+        const receiptHashBytes = receiptHash 
+            ? new Uint8Array(receiptHash.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)))
+            : new Uint8Array(32)
 
         // Derive PDAs
         const guardConfigPda = getGuardConfigPda()
-        const budgetPda = getBudgetPda(publicKey) // Using connected wallet as agent for demo
+        const budgetPda = getBudgetPda(publicKey) 
         const intentPda = getIntentPda(intentIdBytes)
         
-        // Mock mint (USDC) from constants or state
-        const MOCK_USDC = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v') // Mainnet USDC as placeholder or fetch from config
+        const MOCK_USDC = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v') 
         const vaultPda = getVaultPda(MOCK_USDC)
         
-        // Actual Anchor call example:
-        /* 
-        try {
-          txSig = await program.methods.createActionIntent(
-            Array.from(intentIdBytes),
-            new BN(scenario.amount),
-            0, // action_type
-            Array.from(receiptHashBytes),
-            verdict === 'PASS' ? 0 : 2, // policy_verdict
-            new BN(Math.floor(Date.now() / 1000) + 3600) // expires_at
-          ).accounts({
-            guardConfig: guardConfigPda,
-            actionIntent: intentPda,
-            budgetAccount: budgetPda,
-            vaultTokenAccount: vaultPda,
-          }).rpc()
-          logEvent(`On-chain transaction confirmed: ${txSig.slice(0, 8)}...`)
-        } catch (e: any) {
-          console.warn('Anchor call failed (simulation fallback):', e)
-          logEvent(`⚠️ On-chain fail: ${e.message?.slice(0, 40)}... (Continuing in Sim Mode)`)
+        if (ENABLE_DEVNET_TX) {
+            try {
+                logEvent(`[DEVNET-TX] Sending transaction to AgentChain Guard...`)
+                // LAW-26: Cast to any to bypass excessively deep IDL recursion in TypeScript 5.x
+                txSig = await (program.methods as any).createActionIntent(
+                    Array.from(intentIdBytes),
+                    new BN(scenario.amount),
+                    0, // action_type
+                    Array.from(receiptHashBytes),
+                    verdict === 'PASS' ? 0 : 2, // policy_verdict
+                    new BN(Math.floor(Date.now() / 1000) + 3600) // expires_at
+                ).accounts({
+                    guardConfig: guardConfigPda,
+                    actionIntent: intentPda,
+                    budgetAccount: budgetPda,
+                    vaultTokenAccount: vaultPda,
+                }).rpc()
+                logEvent(`✅ [DEVNET-TX] Transaction confirmed: ${shortId(txSig)}`)
+            } catch (e: any) {
+                console.warn('Anchor call failed (simulation fallback):', e)
+                logEvent(`⚠️ [DEVNET-TX] Transaction failed: ${e.message?.slice(0, 40)}... (Continuing in Sim Mode)`)
+                await sleep(1000)
+            }
+        } else {
+            await sleep(1000) // Simulate tx confirmation
+            logEvent(`[SIMULATED-SETTLEMENT] Intent proof recorded off-chain — ${intentId.slice(0, 8)}`)
         }
-        */
-        
-        await sleep(1000) // Simulate tx confirmation
-        logEvent(`[SIMULATED] Intent recorded off-chain — ${intentId.slice(0, 8)}`)
 
 
       } catch (err: any) {
@@ -376,7 +396,8 @@ export default function DashboardPage() {
     }
 
     const e4 = Date.now() - traceStartRef.current
-    logEvent(onchainOk ? '[SIMULATED] Intent PDA created' : '[SIMULATED] Audit trail recorded (denied)')
+    const identityLabel = publicKey ? `Identity: ${shortId(agentId)}` : 'Identity: DemoAgent'
+    logEvent(onchainOk ? `[SIMULATED-PDA] Intent recorded for ${identityLabel}` : '[AUDIT-TRAIL] Violation recorded off-chain')
     setTraceSteps(prev => updateTrace(prev, 3, onchainOk ? 'done' : 'fail',
       verdict === 'DENY' ? 'Audit trail' : 'PDA created', e4))
 
@@ -392,10 +413,11 @@ export default function DashboardPage() {
     else if (verdict === 'PENDING_APPROVAL') finalStatus = 'pending'
 
     const e5 = Date.now() - traceStartRef.current
+    const settleLabel = process.env.NEXT_PUBLIC_ENABLE_DEVNET_TX === 'true' ? '[DEVNET-TX]' : '[SIMULATED-SETTLEMENT]'
     logEvent(
-      verdict === 'PASS' ? `[SIMULATED] Settlement authorized — ${formatUsdc(scenario.amount)} USDC release proof ready` :
-      verdict === 'DENY' ? '[SIMULATED] No funds moved — policy gate closed' :
-      '[SIMULATED] Approval request pending — authority boundary active'
+      verdict === 'PASS' ? `${settleLabel} Authorized release of ${formatUsdc(scenario.amount)} USDC` :
+      verdict === 'DENY' ? '[GATE-CLOSED] No funds moved — policy violation' :
+      '[PENDING] Awaiting human authority sign-off'
     )
     setTraceSteps(prev => updateTrace(prev, 4,
       verdict === 'DENY' ? 'fail' : 'done',
@@ -533,11 +555,13 @@ export default function DashboardPage() {
               Solana Devnet
             </div>
             <div className="hero-mode">
-              <span className={`status-pill ${publicKey ? 'live' : 'sim'}`}>
-                {publicKey ? 'Devnet Authority' : 'Simulation Mode'}
+              <span className={`status-pill ${publicKey ? (ENABLE_DEVNET_TX ? 'live' : 'proof') : 'sim'}`}>
+                {ENABLE_DEVNET_TX ? 'Live Settlement' : (publicKey ? 'Wallet Proof' : 'Simulation Mode')}
               </span>
             </div>
-
+            <div className="hero-wallet">
+              <WalletMultiButton className="wallet-adapter-button" />
+            </div>
           </div>
 
           <div className="hero-state">

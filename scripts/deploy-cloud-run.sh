@@ -17,15 +17,22 @@ echo "📍 Region:  $REGION"
 
 # ── 1. Deploy API ──────────────────────────────────────────────
 echo "📦 Building & Deploying API..."
+cp apps/guard-api/Dockerfile ./Dockerfile
+
+# We use --source . which will find the ./Dockerfile we just copied
 gcloud run deploy "$API_SERVICE_NAME" \
   --source . \
-  --file apps/guard-api/Dockerfile \
   --region "$REGION" \
   --allow-unauthenticated \
   --min-instances 0 \
   --memory 512Mi \
   --cpu 1 \
-  --set-env-vars "NODE_ENV=production,GUARD_MODE=SIMULATED,SOLANA_CLUSTER=devnet"
+  --set-env-vars "NODE_ENV=production,GUARD_MODE=SIMULATED,SOLANA_CLUSTER=devnet,DATABASE_URL=file:./guard.db"
+
+
+rm ./Dockerfile
+
+
 
 # Get the API URL
 API_URL=$(gcloud run services describe "$API_SERVICE_NAME" --region "$REGION" --format 'value(status.url)')
@@ -38,7 +45,7 @@ echo "✅ API Deployed: $API_URL"
 # echo "📦 Building & Deploying Dashboard to Cloud Run..."
 # gcloud run deploy "$DASHBOARD_SERVICE_NAME" \
 #   --source . \
-#   --file apps/dashboard/Dockerfile \
+#   --dockerfile apps/dashboard/Dockerfile \
 #   --region "$REGION" \
 #   --allow-unauthenticated \
 #   --min-instances 0 \

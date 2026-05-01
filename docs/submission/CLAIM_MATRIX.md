@@ -12,7 +12,7 @@ This matrix defines the exact implementation status of all core claims made in t
 | **Solana Wallet-Ready** | Fully implemented | `@solana/wallet-adapter-react` integration | `apps/dashboard/app/layout.tsx` | "Devnet-wallet integrated operator command center." |
 | **LiteSVM Verified** | Fully implemented | 19/19 passing integration tests | `make test` | "On-chain behavior mathematically verified in LiteSVM." |
 | **x402 Alignment** | Demonstrated locally | 402-standard compliance in Policy Engine | `packages/policy-engine/src/server.ts` | "Ready for HTTP 402 Agent Economy." |
-| **On-Chain Settlement** | Implemented in prototype scope | On-chain `settle_action` instruction | `programs/agentchain-guard/src/instructions/settle_action.rs` | "Funds released only upon valid proof." |
+| **On-Chain Settlement** | Implemented in prototype scope | On-chain `settle_action` instruction | `programs/agentchain-guard/src/instructions/settle_action.rs` | "Funds released only upon valid proof (Simulated in primary demo for reliability)." |
 | **Replay Protection** | Fully implemented | Unique `intent_id` tracking in PDA and Policy Engine | `programs/agentchain-guard/src/state/` | "Immutable intent-ID prevents double-spending." |
 | **Security-Hardened Prototype** | Fully implemented | Final audit state | `docs/submission/SECURITY_MODEL.md` | "Hardened prototype for the Frontier." |
 | **Production Readiness** | Not implemented / Future work | Mainnet deployment skipped per CD-002 | N/A | "Slated for mainnet in v2." |

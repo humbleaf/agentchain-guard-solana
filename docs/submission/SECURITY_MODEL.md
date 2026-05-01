@@ -27,11 +27,12 @@
 - **Future**: Integration with Squads/Multisig for decentralized operator approval.
 - **Future**: ZK-verified policy evaluations to remove trust in the off-chain Policy Engine.
 - **Future**: Realloc logic for expanding budget buckets.
-## Demo Boundary: Simulation Mode
-The Dashboard includes a **Simulation Mode** designed for demonstration reliability during a hackathon.
+## Demo Boundary: Simulation & Wallet Proof
+The Dashboard includes two demonstration modes designed for reliability during hackathon reviews:
+- **Simulation Mode**: A zero-setup path where the dashboard simulates the on-chain transition to allow the user to see the "Authority Boundary" logic without requiring Devnet SOL.
+- **Wallet Proof Mode**: When a wallet is connected, the app uses **Message Signing** to cryptographically link the user's pubkey to the intent proposal. This provides proof of identity without the fragility of Devnet transaction submission.
 - **What is REAL**: The Deterministic Hashing logic, recursive key-sorting, and 5-layer Policy Evaluation. These run live in the browser and on the Policy Engine.
-- **What is SIMULATED**: The actual broadcast of transactions to Solana Devnet is gated. If no wallet is connected or if a transaction is manually skipped, the dashboard simulates the on-chain transition to allow the user to see the "Authority Boundary" logic in action.
-- **Trust Assumption**: In production, the Simulation Mode is disabled, and the `ActionIntent` state is driven exclusively by the Anchor program's on-chain events.
+- **What is SIMULATED**: The actual broadcast of transactions to Solana Devnet is gated behind the `NEXT_PUBLIC_ENABLE_DEVNET_TX` flag. This ensures the demo is "judge-safe" by default.
 
 ## Replay Protection
 - Every intent includes a unique `intent_id`.

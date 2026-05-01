@@ -13,7 +13,8 @@ WORKDIR /usr/src/app
 ARG NEXT_PUBLIC_POLICY_ENGINE_URL
 ENV NEXT_PUBLIC_POLICY_ENGINE_URL=$NEXT_PUBLIC_POLICY_ENGINE_URL
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
+
 RUN pnpm --filter @agentguard/dashboard build
 RUN pnpm deploy --filter=@agentguard/dashboard --prod --legacy /prod/dashboard
 

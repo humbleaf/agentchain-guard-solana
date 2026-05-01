@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
 [![Solana](https://img.shields.io/badge/Solana-Devnet-blueviolet)](https://explorer.solana.com/address/HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz?cluster=devnet)
 
-Solana makes low-cost, high-frequency machine payments practical. But autonomous agents should not be allowed to move value without guardrails. **AgentChain Guard** adds policy-bound execution, signed receipts, and gated settlement for agent actions on Solana.
+Solana makes low-cost, high-frequency machine payments practical. But autonomous agents should not be allowed to move value without guardrails. **AgentChain Guard** adds policy-bound authorization, signed receipts, and approval gates for agent actions on Solana.
 
 > [!NOTE]
 > This is a **Security-Hardened Prototype** for the Colosseum Frontier Hackathon. It demonstrates the Authority Boundary pattern for agentic commerce.
@@ -104,9 +104,9 @@ agentchain-guard-solana/
 
 | Scenario | Amount | Expected Outcome |
 |---|---|---|
-| ▶ Allowed Payment | 3 USDC | Policy PASS → Escrow → Settle |
-| ⊗ Blocked Payment | 50 USDC | Allowlist DENY → No escrow |
-| ⏳ Approval Payment | 250 USDC | Pending Approval → Human sign-off → Settle |
+| ▶ Allowed Payment | 3 USDC | Policy PASS → Settle Auth |
+| ⊗ Blocked Payment | 50 USDC | Allowlist DENY → Action Blocked |
+| ⏳ Approval Payment | 250 USDC | Pending Approval → Human gate → Auth |
 
 ## Program ID
 

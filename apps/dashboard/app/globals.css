@@ -1457,3 +1457,8 @@ html, body {
 .hero-mode {
   margin-top: 0.75rem;
 }
+.status-pill.proof {
+  color: var(--color-indigo);
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.15);
+}

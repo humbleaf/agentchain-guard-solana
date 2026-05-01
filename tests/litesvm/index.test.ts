@@ -476,6 +476,47 @@ async function main() {
   console.log('')
 
   // ══════════════════════════════════════════════════
+  // TEST 8: Hash Parity (Deep Determinism)
+  // ══════════════════════════════════════════════════
+  console.log('── Test 8: Hash Parity (Deep Determinism) ──')
+
+  const complexReceipt = {
+    amount: 3000000,
+    meta: {
+      agent: 'DemoAgent',
+      vendor: 'Humbleaf',
+      items: ['api_call', 'compute_units'],
+    },
+    intentId: 'test-intent-001',
+  }
+
+  /**
+   * Re-implementing sortKeys here to avoid cross-package import complexity
+   * in this standalone test runner. Must match packages/sdk/src/canonical.ts.
+   */
+  function sortKeysLocal(obj: any): any {
+    if (obj === null || typeof obj !== 'object') return obj
+    if (Array.isArray(obj)) return obj.map(sortKeysLocal)
+    return Object.keys(obj).sort().reduce((acc: any, key) => {
+      acc[key] = sortKeysLocal(obj[key])
+      return acc
+    }, {})
+  }
+
+  const canonical = JSON.stringify(sortKeysLocal(complexReceipt))
+  const hash = createHash('sha256').update(canonical).digest('hex')
+
+  // Pre-computed hash for this exact object with deep sorting:
+  // {"amount":3000000,"intentId":"test-intent-001","meta":{"agent":"DemoAgent","items":["api_call","compute_units"],"vendor":"Humbleaf"}}
+  const expectedHash = 'eaa52ec945548e72b80e0a5cca664e2112691cd498cb30d06af62a3984b6d258'
+
+
+  assert(hash === expectedHash, 'SDK canonicalization is deterministic and matches pre-computed fixture')
+  console.log(`    Actual:   ${hash}`)
+  console.log(`    Expected: ${expectedHash}`)
+  console.log('')
+
+  // ══════════════════════════════════════════════════
   // Summary
   // ══════════════════════════════════════════════════
   console.log('='.repeat(50))

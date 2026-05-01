@@ -160,6 +160,54 @@ html, body {
 
 .hero-network svg { color: var(--emerald-500); }
 
+.hero-wallet {
+  margin-top: 0.75rem;
+}
+
+/* ── Custom Wallet Adapter Styles ── */
+.wallet-adapter-button {
+  height: 32px !important;
+  padding: 0 1rem !important;
+  font-size: 0.6875rem !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', sans-serif !important;
+  background: var(--surface-3) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  transition: all var(--beat-1) var(--ease-phi) !important;
+  color: var(--text-primary) !important;
+}
+
+.wallet-adapter-button:not([disabled]):hover {
+  background: var(--surface-4) !important;
+  border-color: var(--emerald-500) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+.wallet-adapter-button-trigger {
+  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-700)) !important;
+  border-color: var(--emerald-500) !important;
+}
+
+.wallet-adapter-dropdown-list {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5) !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background: var(--surface-3) !important;
+  color: var(--text-primary) !important;
+}
+
+
 .hero-state { display: flex; align-items: flex-start; gap: 2rem; }
 
 .state-indicators {
@@ -1295,4 +1343,57 @@ html, body {
   .ledger-time, .ledger-amount { display: none; }
   .why-inner { flex-direction: column; }
   .boundary-summary { flex-wrap: wrap; gap: 1.5rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DRAWER ENHANCEMENTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.drawer-cta-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--glass-border);
+}
+
+.drawer-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, var(--emerald-600), var(--emerald-700));
+  border: 1px solid var(--emerald-500);
+  border-radius: 8px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--beat-1) var(--ease-phi);
+}
+
+.drawer-primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  filter: brightness(1.1);
+}
+
+.drawer-primary-btn:active {
+  transform: translateY(0);
+}
+
+.ledger-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.ledger-empty-text {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  max-width: 240px;
+  line-height: 1.5;
 }

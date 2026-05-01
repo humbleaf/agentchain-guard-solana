@@ -1,0 +1,1633 @@
+{
+  "address": "HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz",
+  "metadata": {
+    "name": "agentchain_guard",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "AgentChain Guard — Policy and settlement control layer for autonomous commerce on Solana"
+  },
+  "instructions": [
+    {
+      "name": "approve_action",
+      "docs": [
+        "Approve a pending action. Only callable by the approval_signer."
+      ],
+      "discriminator": [
+        200,
+        117,
+        44,
+        13,
+        133,
+        139,
+        131,
+        36
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "approval_record",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  112,
+                  112,
+                  114,
+                  111,
+                  118,
+                  97,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "approver",
+          "docs": [
+            "Must be the designated approval_signer"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_action_intent",
+      "docs": [
+        "Propose an action intent. Escrows funds into vault.",
+        "Policy verdict is passed from offchain policy engine."
+      ],
+      "discriminator": [
+        201,
+        199,
+        213,
+        202,
+        109,
+        141,
+        175,
+        231
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "intent_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "budget_account",
+          "docs": [
+            "Budget account for the agent — checked for daily cap"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  100,
+                  103,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "agent"
+              },
+              {
+                "kind": "account",
+                "path": "budget_account.scope",
+                "account": "BudgetAccount"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "PDA-owned vault for escrowing funds"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "guard_config.treasury_mint",
+                "account": "GuardConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "requester_token_account",
+          "docs": [
+            "Requester's token account (source of funds)"
+          ],
+          "writable": true
+        },
+        {
+          "name": "agent",
+          "docs": [
+            "The autonomous agent proposing this action"
+          ]
+        },
+        {
+          "name": "recipient",
+          "docs": [
+            "The recipient wallet for settlement"
+          ]
+        },
+        {
+          "name": "requester",
+          "docs": [
+            "The wallet funding this action (signs the transaction)"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "intent_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "action_type",
+          "type": "u8"
+        },
+        {
+          "name": "receipt_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "policy_verdict",
+          "type": "u8"
+        },
+        {
+          "name": "expires_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "create_budget_account",
+      "docs": [
+        "Create a budget account for an agent with a daily spend cap."
+      ],
+      "discriminator": [
+        242,
+        56,
+        217,
+        79,
+        162,
+        155,
+        244,
+        97
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "budget_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  100,
+                  103,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "arg",
+                "path": "scope"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "docs": [
+            "The agent/wallet this budget applies to"
+          ]
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Must be the guard authority"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "scope",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "daily_cap",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "deny_action",
+      "docs": [
+        "Deny a pending action. Returns funds to requester."
+      ],
+      "discriminator": [
+        216,
+        48,
+        61,
+        101,
+        181,
+        233,
+        233,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Must be the guard authority or approval_signer"
+          ],
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize_guard",
+      "docs": [
+        "Initialize the guard configuration. Called once per deployment."
+      ],
+      "discriminator": [
+        63,
+        189,
+        246,
+        157,
+        77,
+        125,
+        157,
+        142
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury_mint",
+          "docs": [
+            "The mint used for all settlements (e.g. mock USDC)"
+          ]
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Admin who initializes and controls the guard"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "default_daily_cap",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_vault",
+      "docs": [
+        "Initialize a vault token account for a specific mint."
+      ],
+      "discriminator": [
+        48,
+        191,
+        163,
+        44,
+        71,
+        129,
+        63,
+        164
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "PDA-owned token account for escrowing funds"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Must be the guard authority"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "refund_action",
+      "docs": [
+        "Refund a denied or expired action. Returns funds to requester."
+      ],
+      "discriminator": [
+        9,
+        18,
+        145,
+        231,
+        148,
+        58,
+        153,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "PDA-owned vault — source of refund"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "guard_config.treasury_mint",
+                "account": "GuardConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "requester_token_account",
+          "docs": [
+            "Requester's token account — destination of refund"
+          ],
+          "writable": true
+        },
+        {
+          "name": "signer",
+          "docs": [
+            "Anyone can trigger a refund for denied/expired intents"
+          ],
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "settle_action",
+      "docs": [
+        "Settle an approved action. Transfers funds from vault to recipient."
+      ],
+      "discriminator": [
+        10,
+        58,
+        136,
+        98,
+        207,
+        113,
+        239,
+        90
+      ],
+      "accounts": [
+        {
+          "name": "guard_config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  117,
+                  97,
+                  114,
+                  100,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "docs": [
+            "PDA-owned vault — source of settlement funds"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "guard_config.treasury_mint",
+                "account": "GuardConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "recipient_token_account",
+          "docs": [
+            "Recipient's token account — destination of settlement"
+          ],
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Must be the guard authority to trigger settlement"
+          ],
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "sweep_expired",
+      "docs": [
+        "Sweep an expired intent. Anyone can call to reclaim rent."
+      ],
+      "discriminator": [
+        10,
+        72,
+        70,
+        57,
+        62,
+        128,
+        19,
+        22
+      ],
+      "accounts": [
+        {
+          "name": "action_intent",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  116,
+                  101,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "action_intent.id",
+                "account": "ActionIntent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "docs": [
+            "Anyone can sweep expired intents"
+          ],
+          "signer": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ActionIntent",
+      "discriminator": [
+        86,
+        205,
+        71,
+        47,
+        137,
+        249,
+        164,
+        80
+      ]
+    },
+    {
+      "name": "ApprovalRecord",
+      "discriminator": [
+        201,
+        139,
+        178,
+        150,
+        83,
+        187,
+        182,
+        213
+      ]
+    },
+    {
+      "name": "BudgetAccount",
+      "discriminator": [
+        66,
+        31,
+        159,
+        140,
+        62,
+        253,
+        188,
+        78
+      ]
+    },
+    {
+      "name": "GuardConfig",
+      "discriminator": [
+        95,
+        175,
+        118,
+        50,
+        193,
+        113,
+        37,
+        250
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "IntentApproved",
+      "discriminator": [
+        144,
+        44,
+        75,
+        93,
+        58,
+        151,
+        160,
+        172
+      ]
+    },
+    {
+      "name": "IntentCreated",
+      "discriminator": [
+        184,
+        46,
+        156,
+        205,
+        169,
+        254,
+        11,
+        108
+      ]
+    },
+    {
+      "name": "IntentDenied",
+      "discriminator": [
+        20,
+        164,
+        63,
+        128,
+        200,
+        3,
+        99,
+        140
+      ]
+    },
+    {
+      "name": "IntentExpired",
+      "discriminator": [
+        153,
+        54,
+        169,
+        192,
+        15,
+        188,
+        136,
+        139
+      ]
+    },
+    {
+      "name": "IntentRefunded",
+      "discriminator": [
+        192,
+        129,
+        4,
+        158,
+        184,
+        25,
+        83,
+        113
+      ]
+    },
+    {
+      "name": "IntentSettled",
+      "discriminator": [
+        112,
+        202,
+        229,
+        173,
+        39,
+        129,
+        254,
+        38
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "GuardPaused",
+      "msg": "Guard is paused"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidApprovalState",
+      "msg": "Action is not in pending approval state"
+    },
+    {
+      "code": 6002,
+      "name": "ActionNotSettleable",
+      "msg": "Action is not settleable"
+    },
+    {
+      "code": 6003,
+      "name": "ActionNotRefundable",
+      "msg": "Action is not refundable"
+    },
+    {
+      "code": 6004,
+      "name": "ActionExpired",
+      "msg": "Action has expired"
+    },
+    {
+      "code": 6005,
+      "name": "UnauthorizedApprover",
+      "msg": "Unauthorized approver"
+    },
+    {
+      "code": 6006,
+      "name": "ActionNotExpired",
+      "msg": "Action not yet expired"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidActionType",
+      "msg": "Invalid action type"
+    },
+    {
+      "code": 6008,
+      "name": "BudgetExceeded",
+      "msg": "Budget exceeded"
+    },
+    {
+      "code": 6009,
+      "name": "ZeroAmount",
+      "msg": "Amount is zero"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidExpiry",
+      "msg": "Invalid expiry"
+    },
+    {
+      "code": 6011,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6012,
+      "name": "PolicyDenied",
+      "msg": "Policy verdict is DENY — action rejected at creation"
+    }
+  ],
+  "types": [
+    {
+      "name": "ActionIntent",
+      "docs": [
+        "ActionIntent — Represents a single proposed value-moving action.",
+        "",
+        "PDA: [\"intent\", id]",
+        "Lifecycle: PROPOSED → PENDING_APPROVAL → APPROVED_READY → SETTLED",
+        "→ DENIED → REFUNDED",
+        "→ EXPIRED (via sweep)",
+        "",
+        "Funds are escrowed in the vault ATA on creation.",
+        "Settlement transfers from vault to recipient.",
+        "Refund returns from vault to requester."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "docs": [
+              "Client-generated unique identifier (UUID bytes)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "agent",
+            "docs": [
+              "The autonomous agent proposing this action"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "requester",
+            "docs": [
+              "The wallet funding this action (may differ from agent)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "docs": [
+              "The destination wallet for settlement"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "docs": [
+              "The SPL token mint (must match GuardConfig.treasury_mint)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Amount in token base units"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "action_type",
+            "docs": [
+              "Action classification: 0=api_payment, 1=reward, 2=treasury"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "status",
+            "docs": [
+              "Current lifecycle status (see constants::status)"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "receipt_hash",
+            "docs": [
+              "SHA-256 hash of the offchain policy receipt"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "policy_verdict",
+            "docs": [
+              "Policy engine verdict at creation time"
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "Unix timestamp of intent creation"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "docs": [
+              "Unix timestamp after which the intent can be swept"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "settled_at",
+            "docs": [
+              "Unix timestamp of settlement (0 if not yet settled)"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ApprovalRecord",
+      "docs": [
+        "ApprovalRecord — Records a human approval decision for an intent.",
+        "",
+        "PDA: [\"approval\", intent_id]",
+        "Created when `approve_action` is called. One approval per intent.",
+        "Can be extended to N-of-M quorum in Phase 5."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent",
+            "docs": [
+              "The ActionIntent account this approval references"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "intent_id",
+            "docs": [
+              "The intent ID for reverse lookup"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "approver",
+            "docs": [
+              "The pubkey that signed the approval"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "approved_at",
+            "docs": [
+              "Unix timestamp of approval"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BudgetAccount",
+      "docs": [
+        "BudgetAccount — Per-agent daily spend tracking.",
+        "",
+        "PDA: [\"budget\", owner, scope]",
+        "Supports lazy reset: when `create_action_intent` checks the budget,",
+        "it resets `spent_today` if 24h+ have elapsed since `last_reset_unix`.",
+        "No cron required."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "docs": [
+              "The agent/wallet this budget applies to"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "guard_config",
+            "docs": [
+              "Backlink to the parent GuardConfig for validation"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "scope",
+            "docs": [
+              "Scope discriminator (e.g. hash of department/team/project)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "daily_cap",
+            "docs": [
+              "Maximum daily spend in token base units"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "spent_today",
+            "docs": [
+              "Amount spent in the current day window"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "last_reset_unix",
+            "docs": [
+              "Unix timestamp of the last budget reset"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "lifetime_spent",
+            "docs": [
+              "Lifetime cumulative spend (analytics)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GuardConfig",
+      "docs": [
+        "GuardConfig — Singleton program configuration.",
+        "",
+        "PDA: [\"guard_config\"]",
+        "Created once via `initialize_guard`. Stores administrative keys",
+        "and cumulative metrics for the dashboard."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Authority that can pause/unpause and update config"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury_mint",
+            "docs": [
+              "SPL token mint used for all settlements (e.g. mock USDC)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "receipt_signer",
+            "docs": [
+              "Key used to verify offchain receipt signatures (Ed25519)"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "approval_signer",
+            "docs": [
+              "Key authorized to approve/deny pending actions"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "default_daily_cap",
+            "docs": [
+              "Default daily spend cap for new budget accounts"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_value_guarded",
+            "docs": [
+              "Cumulative value of all settled actions (dashboard metric)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_actions",
+            "docs": [
+              "Total number of intents created"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_denied",
+            "docs": [
+              "Total number of denied actions"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "docs": [
+              "Emergency pause — blocks all new intents and settlements"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump seed"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentApproved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "approver",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "agent",
+            "type": "pubkey"
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "action_type",
+            "type": "u8"
+          },
+          {
+            "name": "policy_verdict",
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentDenied",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentExpired",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentRefunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "requester",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IntentSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "intent_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "recipient",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}

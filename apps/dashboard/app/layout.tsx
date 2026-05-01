@@ -20,12 +20,17 @@ export const metadata: Metadata = {
   description: 'The command center for autonomous money movement. Policy-checked settlement on Solana.',
 }
 
+import { Providers } from './providers'
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${jetbrainsMono.variable}`}>
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   )
 }
+

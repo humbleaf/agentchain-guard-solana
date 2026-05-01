@@ -8,9 +8,28 @@ import { createHash } from 'crypto'
  * This is the hash target for receipt verification.
  * The onchain receipt_hash must match this output.
  */
-export function canonicalize(obj: Record<string, unknown>): string {
-  return JSON.stringify(obj, Object.keys(obj).sort())
+/**
+ * Deep-sorts keys of an object or array recursively.
+ */
+function sortKeys(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(sortKeys)
+  }
+  return Object.keys(obj)
+    .sort()
+    .reduce((acc: any, key) => {
+      acc[key] = sortKeys(obj[key])
+      return acc
+    }, {})
 }
+
+export function canonicalize(obj: Record<string, unknown>): string {
+  return JSON.stringify(sortKeys(obj))
+}
+
 
 /**
  * SHA-256 hash of a canonical JSON receipt.

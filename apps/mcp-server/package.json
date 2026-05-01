@@ -1,0 +1,26 @@
+{
+  "name": "@agentguard/mcp-server",
+  "version": "0.1.0",
+  "description": "AgentChain Guard MCP Server — Model Context Protocol adapter for Solana agent boundaries",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@agentguard/policy-engine": "workspace:*",
+    "@agentguard/sdk": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@solana/web3.js": "^1.95.8",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.2"
+  }
+}

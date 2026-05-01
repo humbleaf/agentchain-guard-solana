@@ -19,4 +19,6 @@ AgentChain Guard is designed as a "Security Primitive" that composes with existi
 ## 📦 Developer Friendliness
 - **Typed SDK**: Full TypeScript support with Zod schemas for receipts.
 - **Hono Gateway**: Standard HTTP REST API for easy integration into any language (Python, Rust, etc.).
+- **MCP Server**: Official Model Context Protocol server for direct AI agent integration.
 - **LiteSVM Localhost**: Reviewers can run the entire suite in seconds with zero network overhead.
+

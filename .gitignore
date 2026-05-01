@@ -35,3 +35,17 @@ coverage/
 
 test-ledger/
 .env.seed
+
+# 🛡️ Founder War Room — Internal submission logistics (not for judges)
+docs/submission/VIDEO_SHOT_LIST.md
+docs/submission/DEMO_SCRIPT.md
+docs/submission/VALIDATION_PLAN.md
+docs/submission/OUTREACH_MESSAGES.md
+docs/submission/OUTREACH_CLAIM_BANK.md
+docs/submission/VALIDATION_LOG_TEMPLATE.md
+docs/submission/LANDING_PAGE_COPY.md
+docs/submission/OUTREACH_PRIORITY_LIST.md
+docs/submission/SEVEN_DAY_WIN_PLAN.md
+docs/submission/SUBMISSION_FORM_ANSWERS.md
+docs/submission/PITCH_VARIANTS.md
+docs/submission/SCORECARD.md

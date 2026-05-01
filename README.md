@@ -17,9 +17,19 @@ Built by [Humbleaf](https://humbleaf.xyz) for the [Colosseum Frontier Hackathon]
 
 ## 🏆 Colosseum Hackathon Submission
 - **Pitch & Problem**: [docs/submission/README.md](./docs/submission/README.md)
-- **Judge Notes**: [docs/submission/JUDGE_NOTES.md](./docs/submission/JUDGE_NOTES.md)
+- **Fresh Clone Runbook**: [docs/submission/FRESH_CLONE_RUNBOOK.md](./docs/submission/FRESH_CLONE_RUNBOOK.md)
+- **Judge Claim Matrix**: [docs/submission/CLAIM_MATRIX.md](./docs/submission/CLAIM_MATRIX.md)
 - **Security Model**: [docs/submission/SECURITY_MODEL.md](./docs/submission/SECURITY_MODEL.md)
-- **Demo Script**: [docs/submission/DEMO_SCRIPT.md](./docs/submission/DEMO_SCRIPT.md)
+- **Business Plan**: [docs/submission/BUSINESS_PLAN.md](./docs/submission/BUSINESS_PLAN.md)
+- **Composability Plan**: [docs/submission/COMPOSABILITY_PLAN.md](./docs/submission/COMPOSABILITY_PLAN.md)
+- **Integration Story**: [docs/submission/INTEGRATION_STORY.md](./docs/submission/INTEGRATION_STORY.md)
+- **Pre-Submit Checklist**: [docs/submission/PRE_SUBMIT_CHECKLIST.md](./docs/submission/PRE_SUBMIT_CHECKLIST.md)
+
+
+
+
+
+
 
 ---
 

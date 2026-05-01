@@ -1,22 +1,30 @@
-# 🎬 Demo Script: AgentChain Guard (2 Minutes)
+# 🎬 Final Demo Script: AgentChain Guard (120s)
 
-## 0:00 - 0:15: The Problem
-"AI agents are ready to act as economic actors, but today's wallets aren't ready for them. Giving an agent your private key is like giving a robot your credit card with no limit. We need an Authority Boundary."
+**Vibe**: Calm, technical, confident. No marketing goblin energy.
 
-## 0:15 - 0:35: The Solution
-"Introducing AgentChain Guard. A policy-bound settlement layer on Solana. It ensures every agent action is checked against pre-set budgets, allowlists, and human approval thresholds before a single lamport is released."
+---
 
-## 0:35 - 1:20: Live Demo Flow
-- **Step 1: Connect Wallet**. "I'm connecting my operator wallet on Solana Devnet."
-- **Step 2: Allowed Payment**. "An agent proposes a 3 USDC payment. The Policy Engine passes it, funds are escrowed, and settlement happens instantly."
-- **Step 3: The Trace**. "Look at the Intent Trace. We see the exact moment the receipt was hashed and the PDA was created."
-- **Step 4: Blocked Action**. "Now the agent tries a 150 USDC transfer. It's blocked by the 'max-spend' policy. No funds ever leave the treasury."
-- **Step 5: Approval Flow**. "Finally, a 250 USDC payout. It requires human sign-off. I can review the receipt detail and click 'Approve & Settle' to release the funds."
+## 0:00 - 0:15: The Thesis
+"AI agents are ready to trade, but our wallets aren't ready for them. Giving an agent a private key is a liability. We built AgentChain Guard to provide the physical Authority Boundary that agents need to move money safely."
 
-## 1:20 - 1:45: Technical Proof
-- "Our SDK uses deep-deterministic canonicalization to ensure receipt hashes never drift."
-- "The settlement logic is fully on-chain in our Anchor program."
-- "19/19 integration tests pass on LiteSVM."
+## 0:15 - 0:40: The Setup & Mode
+"I'm connecting my operator wallet on Solana Devnet. You'll see we're in 'Devnet Authority' mode. If you're reviewing this locally, the dashboard supports a zero-setup 'Simulation Mode' to demonstrate the logic without Devnet SOL."
 
-## 1:45 - 2:00: Why Solana?
-"Solana's throughput makes high-frequency machine payments viable. AgentChain Guard makes them safe. Built for the Frontier."
+## 0:40 - 1:05: Deterministic Proof (The "Wow" Moment)
+"Let's run an 'Allowed Payment'. An agent proposes a 3 USDC action. Watch the 'Determinism Lock'. Our SDK recursively sorts the agent's metadata to create a SHA-256 receipt. This hash is the immutable proof of intent that gates the on-chain vault."
+
+## 1:05 - 1:30: Policy & Human Gate
+"Now, a 250 USDC payout. This exceeds our 100 USDC threshold. The status changes to 'Requires Approval'. I can open the receipt, audit the deterministic JSON, and sign the approval PDA to release the funds. Real-time safety, human oversight."
+
+## 1:30 - 1:50: Technical Verification
+"This isn't just a UI. Every state transition is backed by our Anchor program. We have 19 integration tests running in LiteSVM and 3 SDK unit tests ensuring our hashing never drifts. It is mathematically verifiable."
+
+## 1:50 - 2:00: Closing
+"Solana gives agents speed. AgentChain Guard gives them permission. We are the trust layer for the Agentic Internet. Built by Humbleaf for the Frontier."
+
+---
+
+## 💡 Narration Tips
+- **Pause** for 1 second after saying "Determinism Lock" to let the judge see the UI update.
+- **Don't rush** the wallet signature; use that time to explain the approval PDA.
+- **Be clear** about what is simulated vs real; it builds credibility.

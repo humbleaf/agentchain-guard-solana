@@ -27,6 +27,11 @@
 - **Future**: Integration with Squads/Multisig for decentralized operator approval.
 - **Future**: ZK-verified policy evaluations to remove trust in the off-chain Policy Engine.
 - **Future**: Realloc logic for expanding budget buckets.
+## Demo Boundary: Simulation Mode
+The Dashboard includes a **Simulation Mode** designed for demonstration reliability during a hackathon.
+- **What is REAL**: The Deterministic Hashing logic, recursive key-sorting, and 5-layer Policy Evaluation. These run live in the browser and on the Policy Engine.
+- **What is SIMULATED**: The actual broadcast of transactions to Solana Devnet is gated. If no wallet is connected or if a transaction is manually skipped, the dashboard simulates the on-chain transition to allow the user to see the "Authority Boundary" logic in action.
+- **Trust Assumption**: In production, the Simulation Mode is disabled, and the `ActionIntent` state is driven exclusively by the Anchor program's on-chain events.
 
 ## Replay Protection
 - Every intent includes a unique `intent_id`.

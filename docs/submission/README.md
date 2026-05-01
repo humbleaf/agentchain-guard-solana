@@ -1,22 +1,28 @@
 # 🛡️ AgentChain Guard: Policy-Bound Autonomous Commerce
 
-> **Submission for Colosseum Frontier Hackathon · May 2026**
+> **Solana gives agents speed. AgentChain Guard gives them permission to touch money.**
 
-## The Problem
-As AI agents move from "chatbots" to "economic actors," the risk of unconstrained value movement grows. Conventional wallets are designed for humans; they lack the precision to enforce per-action budgets, merchant allowlists, or multi-stage approval thresholds for machine-originated transactions.
+### 📋 Submission Summary
+- **The Problem**: Conventional wallets lack the precision to enforce machine-readable policies.
+- **The Solution**: An "Authority Boundary" that mandates deterministic receipts before any funds move.
+- **What is Built**: Anchor program (Solana), Deterministic SDK (TypeScript), Policy Engine (Hono).
+- **Core Proof**: [Judge Claim Matrix](./CLAIM_MATRIX.md) · [Security Model](./SECURITY_MODEL.md)
 
-## The Solution
-**AgentChain Guard** is a policy and settlement control layer built on Solana. It acts as an "Authority Boundary" between the AI agent and the treasury, ensuring every settlement is pre-authorized by an immutable policy engine.
 
-### Key Innovations
-1.  **Deterministic Receipt Verification**: Every agent action produces a deep-deterministic JSON receipt. The SHA-256 hash of this receipt is recorded on-chain, creating a permanent, audit-ready trail of the *intent* behind the payment.
-2.  **x402 Agent Economy**: Implements the HTTP 402 (Payment Required) standard for agents. When an agent hits a resource gate, the Guard evaluates the request against 5 pre-loaded policies:
-    - `max-spend`: Limits single-action exposure.
-    - `allowlist`: Restricts recipients to verified vendors.
-    - `approval-threshold`: Automatically triggers human-in-the-loop for high-value actions.
-    - `budget-bucket`: Enforces daily/lifetime caps per agent.
-    - `duplicate-prevention`: Prevents replay attacks on receipts.
-3.  **Solana-Bound Guardrails**: Leverages Solana's high-throughput and low latency to make high-frequency machine payments economically viable without sacrificing security.
+---
+
+## 🚀 Quick Start
+```bash
+make setup && make test-all
+```
+*Runs the full verification suite: 19 LiteSVM integration tests + 3 SDK determinism tests.*
+
+## 🎬 The Demo
+Open the [Live Dashboard](https://agentguard.humbleaf.xyz) (or run `make dev` locally).
+1. **Connect**: Link any Devnet wallet.
+2. **Execute**: Run "Allowed Payment". Watch the **Determinism Lock** happen in real-time.
+3. **Approve**: Run "Approval Required". Review the SHA-256 receipt and authorize the settlement PDA.
+
 
 ## What is actually built?
 1.  **Anchor Program** (`agentchain_guard`): A secure vault-escrow system on Solana Devnet.

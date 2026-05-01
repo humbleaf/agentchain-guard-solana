@@ -292,8 +292,10 @@ export default function DashboardPage() {
     await sleep(800)
     const verdictOk = verdict === 'PASS' || verdict === 'PENDING_APPROVAL'
     const e2 = Date.now() - traceStartRef.current
-    logEvent(`Policy engine evaluated ${policies.length} rules → ${verdict}`)
+    const modeLabel = publicKey ? '[ON-CHAIN]' : '[SIMULATED]'
+    logEvent(`${modeLabel} Policy engine evaluated ${policies.length} rules → ${verdict}`)
     setTraceSteps(prev => updateTrace(prev, 1, verdictOk ? 'done' : 'fail', `${verdict} · ${policies.length} policies`, e2))
+
     setTraceSteps(prev => updateTrace(prev, 2, 'running'))
     setBoundaryState(prev => ({
       ...prev,
@@ -360,7 +362,8 @@ export default function DashboardPage() {
         */
         
         await sleep(1000) // Simulate tx confirmation
-        logEvent(`Intent created on Solana — ${intentId.slice(0, 8)}`)
+        logEvent(`[SIMULATED] Intent recorded off-chain — ${intentId.slice(0, 8)}`)
+
 
       } catch (err: any) {
         console.error('On-chain error:', err)
@@ -371,9 +374,10 @@ export default function DashboardPage() {
     }
 
     const e4 = Date.now() - traceStartRef.current
-    logEvent(onchainOk ? 'Intent PDA created on-chain' : 'Audit trail recorded (denied)')
+    logEvent(onchainOk ? '[SIMULATED] Intent PDA created' : '[SIMULATED] Audit trail recorded (denied)')
     setTraceSteps(prev => updateTrace(prev, 3, onchainOk ? 'done' : 'fail',
       verdict === 'DENY' ? 'Audit trail' : 'PDA created', e4))
+
     setTraceSteps(prev => updateTrace(prev, 4, 'running'))
 
 
@@ -387,15 +391,16 @@ export default function DashboardPage() {
 
     const e5 = Date.now() - traceStartRef.current
     logEvent(
-      verdict === 'PASS' ? `Settlement authorized — ${formatUsdc(scenario.amount)} USDC release proof ready` :
-      verdict === 'DENY' ? 'No funds moved — policy gate closed' :
-      'Approval request pending — authority boundary active'
+      verdict === 'PASS' ? `[SIMULATED] Settlement authorized — ${formatUsdc(scenario.amount)} USDC release proof ready` :
+      verdict === 'DENY' ? '[SIMULATED] No funds moved — policy gate closed' :
+      '[SIMULATED] Approval request pending — authority boundary active'
     )
     setTraceSteps(prev => updateTrace(prev, 4,
       verdict === 'DENY' ? 'fail' : 'done',
       verdict === 'PASS' ? `${formatUsdc(scenario.amount)} USDC Authorized` :
         verdict === 'DENY' ? 'Blocked' :
           'Awaiting Authority', e5))
+
 
 
     setBoundaryState(prev => ({
@@ -447,14 +452,15 @@ export default function DashboardPage() {
       const approvalPda = PublicKey.findProgramAddressSync([Buffer.from(APPROVAL_SEED), Buffer.from(intentIdBytes)], PROGRAM_ID)[0]
       const guardConfigPda = getGuardConfigPda()
 
-      // Actual Anchor call
+      // Actual Anchor call would go here
       logEvent('Awaiting wallet signature...')
       // For demo, we simulate the success if accounts aren't ready
       await sleep(1500)
       
       setIntents(prev => prev.map(i => i.id === intent.id ? { ...i, status: 'settled', settledAt: Date.now() } : i))
       setSelectedIntent(null)
-      logEvent(`Intent ${shortId(intent.id)} approved and settled!`)
+      logEvent(`[SIMULATED] Intent ${shortId(intent.id)} approved and settled!`)
+
       
       setStats(prev => ({ ...prev, totalSettled: prev.totalSettled + 1 }))
     } catch (err: any) {
@@ -519,14 +525,17 @@ export default function DashboardPage() {
               <Shield size={20} strokeWidth={2} className="hero-icon" />
               <h1 className="hero-title">AgentChain Guard</h1>
             </div>
-            <div className="hero-thesis">Policy-bound settlement for autonomous commerce</div>
+            <div className="hero-thesis">Deterministic, policy-bound receipts for autonomous machine payments</div>
             <div className="hero-network">
               <Globe size={10} strokeWidth={2} />
               Solana Devnet
             </div>
-            <div className="hero-wallet">
-              <WalletMultiButton />
+            <div className="hero-mode">
+              <span className={`status-pill ${publicKey ? 'live' : 'sim'}`}>
+                {publicKey ? 'Devnet Authority' : 'Simulation Mode'}
+              </span>
             </div>
+
           </div>
 
           <div className="hero-state">
@@ -857,19 +866,27 @@ export default function DashboardPage() {
                  <Clock size={14} strokeWidth={2} />}
               </div>
               <div className="ledger-meta">
-                <span className="ledger-id">{shortId(intent.id)}</span>
+                <div className="ledger-id-row">
+                  <span className="ledger-id">{shortId(intent.id)}</span>
+                  <span className={`ledger-mode-badge ${intent.status === 'settled' && !publicKey ? 'sim' : 'real'}`}>
+                    {intent.status === 'settled' && !publicKey ? 'Simulated' : 'Devnet'}
+                  </span>
+                </div>
                 <span className="ledger-desc">{intent.actionType}</span>
               </div>
               <span className="ledger-amount">
                 {formatUsdc(intent.amount)}
                 <span style={{ fontSize: '0.5625rem', opacity: 0.382 }}> USDC</span>
               </span>
-              <span className={`verdict-badge ${intent.status === 'settled' ? 'settled' : intent.status}`}>
-                {intent.status === 'settled' ? 'Settled' :
-                 intent.status === 'deny' ? 'Denied' :
-                 intent.status === 'pending' ? 'Requires Approval' : intent.status}
-              </span>
-              <span className="ledger-time">{timeAgo(intent.timestamp)}</span>
+              <div className="ledger-outcome">
+                <span className={`verdict-badge ${intent.status === 'settled' ? 'settled' : intent.status}`}>
+                  {intent.status === 'settled' ? 'Settled' :
+                  intent.status === 'deny' ? 'Denied' :
+                  intent.status === 'pending' ? 'Requires Approval' : intent.status}
+                </span>
+                <span className="ledger-time">{timeAgo(intent.timestamp)}</span>
+              </div>
+
             </div>
           ))}
         </div>

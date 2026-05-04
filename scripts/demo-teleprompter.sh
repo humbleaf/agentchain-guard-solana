@@ -143,8 +143,9 @@ printf "${GREEN}${BOLD}  PRE-FLIGHT COMPLETE.${RESET}\n"
 printf "${DIM}  Open your screen recorder. Split: browser (right) | terminal (left).${RESET}\n\n"
 
 action_required "Open $DASHBOARD_URL in the browser NOW before starting.
-Open a second terminal for the 'make test' scene (Scene 5).
-Font size ≥ 16pt in both terminals."
+NOTE: NO second terminal needed — Scene 5 test + Scene 6 matrix rain both
+run in THIS pane. Just keep this terminal visible throughout.
+Font size ≥ 16pt."
 
 printf "${MAGENTA}${BOLD}  ▶  Press ENTER when recorder is running and you're ready to start...${RESET}"
 read -r _
@@ -239,31 +240,55 @@ note "Judges love the audit trail. Drawer open = trust signal."
 wait_key
 
 # ─────────────────────────────────────────────────────────────
-#  SCENE 5 — Proof + CTA (0:52–1:00)
+#  SCENE 5 — Proof + CTA (0:52–0:57)
 # ─────────────────────────────────────────────────────────────
 clear_screen
 header
-scene_banner "5" "PROOF + CTA" "0:52 – 1:00 · 8s"
+scene_banner "5" "PROOF + CTA" "0:52 – 0:57 · 5s"
 
 narration "19 LiteSVM integration tests verify the full state machine.
 The hashing logic is cross-verified SDK-to-program.
 AgentChain Guard: we don't just move SOL —
 we move AUTHORIZED SOL."
 
-action_required "TERMINAL (second window): Run exactly:
-  make test
-Wait for '19 passed' (or '19/19').
-Keep terminal visible as you deliver the closing line.
-DO NOT switch back to browser — end on the green test output."
+action_required "THIS TERMINAL: Run 'make test' right now.
+Wait for '19 passed'. Deliver the closing line as tests finish.
+DO NOT switch to browser — stay here for Scene 6."
 
-printf "${BOLD}${GREEN}  🔥 LIVE RUN: Executing make test now (for your reference)...${RESET}\n\n"
+printf "${BOLD}${GREEN}  🔥 LIVE RUN: Executing make test (reference output)...${RESET}\n\n"
 if (cd "$ROOT_DIR" && make test 2>&1 | tail -10); then
-  success "Tests confirmed passing — ready for the final scene."
+  success "Tests confirmed passing — Scene 6 fires next."
 else
-  fail_warn "Test output unclear — run 'make test' manually in your second terminal."
+  fail_warn "Test output unclear — run 'make test' manually before proceeding."
 fi
 
 wait_key
+
+# ─────────────────────────────────────────────────────────────
+#  SCENE 6 — Matrix Rain Outro (0:57–1:05)
+# ─────────────────────────────────────────────────────────────
+clear_screen
+header
+scene_banner "6" "MATRIX RAIN OUTRO" "0:57 – 1:05 · ~8s then cut"
+
+narration "(no narration — let the rain speak)"
+
+action_required "The rain will fire NOW in this terminal.
+Let the φ-blink land, let rain establish for ~5-8s.
+Hit q when you're happy with the final frame.
+STOP RECORDING after you hit q (or trim to the rain peak)."
+
+note "'AUTHORITY BOUNDARY ACTIVE' watermark = the final title card."
+
+printf "${MAGENTA}${BOLD}  ▶  Press ENTER to launch matrix rain (Scene 6 starts)...${RESET}"
+read -r _
+echo ""
+
+# Fire the rain — takes over the terminal
+node "${SCRIPT_DIR}/matrix-rain.mjs"
+
+# Control returns here after q/ESC
+printf "\n${GREEN}${BOLD}  ✅ Rain complete. Stop recording now.${RESET}\n\n"
 
 # ─────────────────────────────────────────────────────────────
 #  DONE
@@ -271,13 +296,14 @@ wait_key
 clear_screen
 header
 
-printf "${GREEN}${BOLD}  🎬 SCRIPT COMPLETE — STOP RECORDING${RESET}\n\n"
+printf "${GREEN}${BOLD}  🎬 RECORDING COMPLETE${RESET}\n\n"
 
 printf "${WHITE}  Post-record checklist:${RESET}\n"
-printf "${DIM}  [ ] Trim to exactly 60s\n"
-printf "  [ ] Verify receipt_hash is legible in Scene 2\n"
-printf "  [ ] Verify DENY log is readable in Scene 3\n"
+printf "${DIM}  [ ] Trim to ~65s (60s demo + 5s rain outro)\n"
+printf "  [ ] Verify receipt_hash legible in Scene 2\n"
+printf "  [ ] Verify DENY log readable in Scene 3\n"
 printf "  [ ] 19/19 test output visible in Scene 5\n"
+printf "  [ ] Matrix rain + watermark visible in Scene 6\n"
 printf "  [ ] Upload to docs/submission/demo.mp4 (P-5.3)\n"
 printf "  [ ] Add video link to docs/submission/README.md\n"
 printf "  [ ] git tag guard-solana/colosseum-2026-05 && git push --tags${RESET}\n\n"

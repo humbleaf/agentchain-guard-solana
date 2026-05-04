@@ -77,13 +77,15 @@ wait_key() {
 
 run_check() {
   local label="$1" cmd="$2"
-  printf "${DIM}  🔄 Running: ${cmd}${RESET}\n"
+  # Use %s to avoid printf interpreting curl -w format strings like %{http_code}
+  printf "${DIM}  🔄 Running: %s${RESET}\n" "$cmd"
   if eval "$cmd" > /tmp/demo_check_out 2>&1; then
     success "$label"
     if [ -s /tmp/demo_check_out ]; then
-      printf "${DIM}"
+      printf "%s" "${DIM}"
       head -5 /tmp/demo_check_out | sed 's/^/     /'
-      printf "${RESET}\n"
+      printf "%s" "${RESET}"
+      echo ""
     fi
   else
     fail_warn "$label FAILED — check output below:"
@@ -91,6 +93,21 @@ run_check() {
     printf "\n${YELLOW}  Continue anyway? (y/N): ${RESET}"
     read -r ans
     [[ "$ans" =~ ^[Yy]$ ]] || exit 1
+  fi
+  echo ""
+}
+
+# Soft health check — warn but never block (Cloud Run cold-starts are common)
+soft_check() {
+  local label="$1" url="$2"
+  printf "${DIM}  🔄 Checking: %s${RESET}\n" "$url"
+  local http_code
+  http_code=$(curl -s --max-time 8 -o /tmp/demo_check_out -w '%{http_code}' "$url" 2>&1 || echo "000")
+  if [[ "$http_code" =~ ^2 ]]; then
+    success "$label (HTTP $http_code)"
+  else
+    fail_warn "$label returned HTTP $http_code — may be cold-starting. Continuing."
+    printf "${DIM}  Response: %s${RESET}\n" "$(head -c 120 /tmp/demo_check_out 2>/dev/null)"
   fi
   echo ""
 }
@@ -112,13 +129,11 @@ header
 
 printf "${BOLD}  PRE-FLIGHT CHECKS${RESET}\n\n"
 
-# 1. API health
-run_check "Cloud Run API is reachable" \
-  "curl -sf --max-time 8 '${API_URL}/health'"
+# 1. API health (soft — Cloud Run cold-starts; never blocks the flow)
+soft_check "Cloud Run API" "${API_URL}/health"
 
-# 2. Dashboard reachable
-run_check "Dashboard URL responds" \
-  "curl -sf --max-time 8 -o /dev/null -w 'HTTP %{http_code}' '${DASHBOARD_URL}'"
+# 2. Dashboard reachable (soft)
+soft_check "Dashboard" "${DASHBOARD_URL}"
 
 # 3. LiteSVM tests
 printf "${DIM}  Running LiteSVM tests (this takes ~15s)...${RESET}\n"

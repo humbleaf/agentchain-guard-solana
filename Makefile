@@ -6,7 +6,7 @@
 # ══════════════════════════════════════════════════════════════════
 
 .PHONY: setup deploy dev test test-policy test-all build demo clean \
-       dev-api export-openapi guard-docs-dev
+       dev-api export-openapi guard-docs-dev matrix teleprompter
 
 # ── First-time setup ─────────────────────────────────────────────
 # Installs toolchain, generates keypairs, funds wallets from devnet faucet.
@@ -109,3 +109,13 @@ clean:
 	rm -rf apps/guard-api/dist apps/guard-api/node_modules apps/guard-api/prisma/guard.db
 	rm -rf packages/*/dist packages/*/node_modules
 	rm -rf programs/agentchain-guard/target
+
+# ── Demo Tools ───────────────────────────────────────────────
+# Matrix rain — terminal port of MatrixSelection.tsx
+# Press q / ESC / Ctrl+C to exit
+matrix:
+	@node scripts/matrix-rain.mjs
+
+# Interactive teleprompter for the 60s Colosseum demo video
+teleprompter:
+	@bash scripts/demo-teleprompter.sh

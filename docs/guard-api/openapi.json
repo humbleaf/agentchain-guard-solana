@@ -492,7 +492,7 @@
       "description": "Local Development"
     },
     {
-      "url": "https://guard-api.agentchain.xyz",
+      "url": "https://guard-api.agentchain.cloud",
       "description": "Production"
     }
   ],

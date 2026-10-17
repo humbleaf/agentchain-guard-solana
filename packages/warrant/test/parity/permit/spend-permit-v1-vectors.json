@@ -1,0 +1,12 @@
+{
+  "note": "Predeploy Base vector uses verifyingContract 0x0. Regenerate eip712 after SpendPermitGuard deploy. Do not change jcs.",
+  "solana": {
+    "jcs": "{\"agent\":\"ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL\",\"amount\":\"40000000\",\"approvalHash\":null,\"asset\":\"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU\",\"assetDecimals\":6,\"canonicalization\":\"jcs-rfc8785-v1\",\"chain\":\"solana-devnet\",\"executor\":\"HutGfrkJTsaGMC4bs7X2EFsbbP8LaTEDkWsEBM86RGHz\",\"expiresAt\":1760003600,\"issuedAt\":1760000000,\"issuerEpoch\":1,\"issuerKeyId\":\"issuer-dev\",\"issuerPubkey\":\"SysvarC1ock11111111111111111111111111111111\",\"operationId\":\"pay-40\",\"permitId\":\"permit-40\",\"permitVersion\":\"spend-permit-v1\",\"policyHash\":\"0xabababababababababababababababababababababababababababababababab\",\"recipient\":\"11111111111111111111111111111111\",\"replayNonce\":\"1\",\"reservationId\":\"res-40\",\"signingDomain\":\"spend-permit-v1\",\"vault\":\"TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA\",\"warrantHash\":\"0xabababababababababababababababababababababababababababababababab\"}",
+    "sha256": "0xfd0066d53c8374b1948bd8d2025c2b05cdbef6a931764947af7141f07c14f8bc"
+  },
+  "base": {
+    "jcs": "{\"agent\":\"0x3333333333333333333333333333333333333333\",\"amount\":\"40000000\",\"approvalHash\":null,\"asset\":\"0x036cbd53842c5426634e7929541ec2318f3dcf7e\",\"assetDecimals\":6,\"canonicalization\":\"jcs-rfc8785-v1\",\"chain\":\"base-sepolia\",\"executor\":\"0x1111111111111111111111111111111111111111\",\"expiresAt\":1760003600,\"issuedAt\":1760000000,\"issuerEpoch\":1,\"issuerKeyId\":\"issuer-dev\",\"issuerPubkey\":\"0x5555555555555555555555555555555555555555\",\"operationId\":\"pay-base-40\",\"permitId\":\"permit-base-40\",\"permitVersion\":\"spend-permit-v1\",\"policyHash\":\"0xabababababababababababababababababababababababababababababababab\",\"recipient\":\"0x4444444444444444444444444444444444444444\",\"replayNonce\":\"1\",\"reservationId\":\"res-40\",\"signingDomain\":\"spend-permit-v1\",\"vault\":\"0x2222222222222222222222222222222222222222\",\"warrantHash\":\"0xabababababababababababababababababababababababababababababababab\"}",
+    "sha256": "0xca3349bb7ace3ac224099bfea1ee85e60d7e82858b9c14c9386c3837148cb27a",
+    "eip712Predeploy": "0xe6a5a08e5ad9900df046c9b778c77a97b56ac27ddbe8fefd849997f301ea4df7"
+  }
+}

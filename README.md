@@ -1,5 +1,7 @@
 # 🛡️ AgentChain Guard for Solana
 
+Warrant (signed spend permission) lives in `packages/warrant` (`@agentguard/warrant`). All hackathon work stays in this folder; CI pushes it to the public AgentGuard repo via subtree sync.
+
 > **The policy and settlement control layer for autonomous commerce.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)

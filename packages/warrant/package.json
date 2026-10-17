@@ -1,0 +1,21 @@
+{
+  "name": "@agentguard/warrant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Signed spend permission for AgentGuard. AgentGuard remains the Solana lock. This package does not rename it.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "json-canonicalize": "2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "viem": "^2.46.3",
+    "vitest": "^3.1.0"
+  }
+}
